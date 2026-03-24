@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -f \"node server.js\")",
+      "Bash(pkill -f \"sdr_server.py\")",
+      "Bash(pip3 install:*)",
+      "Bash(python3 -c \"import SoapySDR; print\\(''SoapySDR OK''\\); print\\(SoapySDR.Device.enumerate\\(\\)\\)\")",
+      "Bash(SoapySDRUtil --find)",
+      "Bash(brew install:*)",
+      "Bash(find /opt/homebrew -name _SoapySDR*.so)",
+      "Bash(python3.14 -c \"import SoapySDR; devs=SoapySDR.Device.enumerate\\({''driver'':''hackrf''}\\); print\\(''SoapySDR OK''\\); print\\(devs\\)\")",
+      "Bash(python3.14 -m pip install websockets numpy -q)",
+      "Bash(python3.14 -m pip install websockets numpy --break-system-packages -q)",
+      "Bash(python3.14 -c \"import websockets, numpy; print\\(''websockets'', websockets.__version__, ''| numpy'', numpy.__version__\\)\")",
+      "Bash(SoapySDRUtil --find 2)",
+      "Bash(1 hackrf_info)",
+      "Bash(pkill -f sdr_server.py)",
+      "Bash(hackrf_info)",
+      "Bash(python3.14 -c \":*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(hackrf_sweep --help)",
+      "Bash(time hackrf_sweep -f 100:6000 -w 1000000 -l 32 -g 40 -1 -r /dev/stdout)",
+      "Bash(hackrf_sweep -f 100:200 -w 1000000 -1 -l 32 -g 40)",
+      "Bash(node -e \":*)",
+      "Bash(pkill -f 'node server.js')"
+    ]
+  }
+}

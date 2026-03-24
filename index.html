@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDR 360° Signal Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: monospace; background: #0a0a0f; color: #00ff88; height: 100vh; display: flex; flex-direction: column; }
+
+    #header {
+      padding: 0 16px;
+      height: 48px;
+      background: #111118;
+      border-bottom: 1px solid #00ff8833;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    /* Header 3-column layout */
+    #header-left   { display:flex; align-items:center; gap:10px; flex:0 0 auto; }
+    #header-center { display:flex; align-items:center; gap:6px; flex:1; justify-content:center; }
+    #header-right  { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+    #header h1 { font-size: 13px; letter-spacing: 2px; color: #00ff88; white-space:nowrap; }
+    #status { font-size: 11px; color: #666; white-space:nowrap; }
+    #ws-badge {
+      font-size: 11px; padding: 2px 10px; border-radius: 10px;
+      background: #1a1a2e; border: 1px solid #444;
+      color: #888; letter-spacing: 1px; white-space:nowrap;
+    }
+    #ws-badge.live  { border-color: #00ff88; color: #00ff88; }
+    #ws-badge.sim   { border-color: #ffaa00; color: #ffaa00; }
+    #ws-badge.err   { border-color: #ff4444; color: #ff4444; }
+    /* Header device selector */
+    #hdr-device-dot {
+      width:8px; height:8px; border-radius:50%; background:#444;
+      flex-shrink:0; transition:background 0.3s;
+    }
+    #hdr-device-select {
+      background:#0d1117; color:#ccc; border:1px solid #2a4a3a;
+      border-radius:4px; padding:3px 8px; font-size:11px;
+      font-family:monospace; cursor:pointer; max-width:220px;
+    }
+    #hdr-device-select:focus { outline:none; border-color:#00ff88; }
+    .hdr-btn {
+      padding:3px 10px; font-size:11px; font-family:monospace;
+      border-radius:4px; cursor:pointer; border:1px solid;
+      transition:opacity 0.2s; background:transparent;
+    }
+    .hdr-btn:hover { opacity:0.75; }
+    .hdr-btn:disabled { opacity:0.4; cursor:default; }
+    #btn-hdr-scan    { border-color:#00ff88; color:#00ff88; }
+    #btn-hdr-connect { border-color:#00aaff; color:#00aaff; }
+    .beam-tip { background:#111; color:#00ff88; border:1px solid #00ff8866;
+                font-family:monospace; font-size:12px; padding:4px 8px; }
+    .hit-marker {
+      background: #111827; border: 2px solid #00ff88; border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg); width: 10px; height: 10px;
+      box-shadow: 0 0 8px #00ff88aa;
+    }
+    .hit-label {
+      position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      background: #111827ee; border: 1px solid #00ff8866; border-radius: 4px;
+      color: #00ff88; font-family: monospace; font-size: 10px;
+      padding: 2px 5px; white-space: nowrap; pointer-events: none;
+      text-align: center; line-height: 1.4;
+    }
+    #scan-indicator {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #00ff88;
+      animation: pulse 1s linear infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+    #main { display: flex; flex: 1; overflow: hidden; }
+
+    #map { flex: 1; }
+
+    #sidebar {
+      width: 220px;
+      background: #111118;
+      border-left: 1px solid #00ff8822;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+    }
+
+    #radar-container {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto;
+    }
+    #radar-canvas { display: block; }
+
+    .section-title {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: #00ff8888;
+      border-bottom: 1px solid #00ff8822;
+      padding-bottom: 4px;
+    }
+
+    #signal-bars { display: flex; flex-direction: column; gap: 4px; }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+    }
+    .bar-label { width: 32px; color: #aaa; }
+    .bar-track {
+      flex: 1;
+      height: 8px;
+      background: #1a1a2e;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    .bar-value { width: 28px; text-align: right; font-size: 9px; color: #666; }
+
+    #stats { font-size: 10px; line-height: 1.8; color: #aaa; }
+    #stats span { color: #00ff88; }
+
+    #controls { display: flex; flex-direction: column; gap: 6px; }
+    button {
+      background: #1a1a2e;
+      border: 1px solid #00ff8844;
+      color: #00ff88;
+      padding: 6px 10px;
+      font-family: monospace;
+      font-size: 11px;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: background 0.2s;
+    }
+    button:hover { background: #00ff8822; }
+    button.active { background: #00ff8833; border-color: #00ff88; }
+
+    label { font-size: 10px; color: #888; }
+    input[type=range] { width: 100%; accent-color: #00ff88; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <div id="header-left">
+    <div id="scan-indicator"></div>
+    <h1>SDR 360° SIGNAL MAP</h1>
+    <div id="status">Initializing...</div>
+  </div>
+
+  <div id="header-center">
+    <span id="hdr-device-dot"></span>
+    <select id="hdr-device-select"><option value="">— Nėra įrenginių —</option></select>
+    <button id="btn-hdr-scan"    class="hdr-btn" title="Ieškoti įrenginių">🔍 Scan</button>
+    <button id="btn-hdr-connect" class="hdr-btn" title="Prisijungti">⚡ Connect</button>
+  </div>
+
+  <div id="header-right">
+    <span id="ws-badge">WS: ···</span>
+  </div>
+</div>
+
+<div id="main">
+  <div id="map"></div>
+
+  <div id="sidebar">
+    <div class="section-title">RADAR</div>
+    <div id="radar-container">
+      <canvas id="radar-canvas" width="180" height="180"></canvas>
+    </div>
+
+    <div class="section-title">SIGNAL STRENGTH</div>
+    <div id="signal-bars"></div>
+
+    <div class="section-title">STATS</div>
+    <div id="stats">
+      Scan #: <span id="stat-scan">0</span><br>
+      Sweep: <span id="stat-sweep">100–6000 MHz</span><br>
+      Peak dir: <span id="stat-peak-dir">—</span><br>
+      Peak dBm: <span id="stat-peak-dbm">—</span><br>
+      Antenna: <span id="stat-lat">—</span>, <span id="stat-lng">—</span>
+    </div>
+
+    <div class="section-title">CONTROLS</div>
+    <div id="controls">
+      <button id="btn-pause">⏸ PAUSE</button>
+      <button id="btn-clear">🗑 CLEAR MAP</button>
+      <button id="btn-wide" style="display:none;border-color:#ffaa00;color:#ffaa00">↩ WIDE SCAN</button>
+      <label>Focus span: <span id="span-val">50</span> MHz</label>
+      <input type="range" id="span-slider" min="5" max="500" step="5" value="50" />
+      <label>VGA Gain: <span id="gain-val">40</span> dB</label>
+      <input type="range" id="gain-slider" min="0" max="62" step="2" value="40" />
+      <label>LNA Gain: <span id="lna-val">32</span> dB</label>
+      <input type="range" id="lna-slider" min="0" max="40" step="8" value="32" />
+      <label>Threshold: <span id="thresh-val">-80</span> dBm</label>
+      <input type="range" id="thresh-slider" min="-110" max="-30" step="5" value="-80" />
+      <label>Scan speed: <span id="speed-val">1</span>s/rot</label>
+      <input type="range" id="speed-slider" min="0.5" max="5" step="0.5" value="1" />
+      <label>History: <span id="history-val">30</span> scans</label>
+      <input type="range" id="history-slider" min="5" max="100" step="5" value="30" />
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+let ANTENNA_LAT  = 54.6872;   // default, overwritten by geolocation
+let ANTENNA_LNG  = 25.2797;
+const DIRECTIONS   = 8;          // 360/45 = 8 beams
+const BEAM_STEP    = 360 / DIRECTIONS;
+const BEAM_RANGE_M = 2000;       // 2 km radius visuals
+
+// ─── MAP SETUP ─────────────────────────────────────────────────────────────
+const map = L.map('map', { zoomControl: true }).setView([ANTENNA_LAT, ANTENNA_LNG], 13);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO',
+  maxZoom: 19
+}).addTo(map);
+
+// Antenna marker
+const antennaIcon = L.divIcon({
+  html: `<div style="
+    width:14px;height:14px;border-radius:50%;
+    background:#00ff88;border:2px solid #fff;
+    box-shadow:0 0 10px #00ff88;
+  "></div>`,
+  iconSize: [14,14], iconAnchor: [7,7]
+});
+const antennaMarker = L.marker([ANTENNA_LAT, ANTENNA_LNG], { icon: antennaIcon })
+  .bindPopup('SDR Antenna')
+  .addTo(map);
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let scanCount   = 0;
+let paused      = false;
+let scanSpeed   = 1000;   // ms per full rotation
+let maxHistory  = 30;
+let currentAngle = 0;
+
+// Two sets of beam layers: current scan and previous scan (fading out)
+let currLayers = new Array(DIRECTIONS).fill(null);
+let prevLayers = new Array(DIRECTIONS).fill(null);
+
+// Signal history per direction (ring buffer)
+const signalHistory = Array.from({length: DIRECTIONS}, () => []);
+
+// ─── SIGNAL SIMULATION ─────────────────────────────────────────────────────
+// Simulate a few "signal sources" at fixed bearings from antenna
+const SIGNAL_SOURCES = [
+  { bearing: 22,  strength: -55, spread: 25 },  // NNE strong
+  { bearing: 135, strength: -70, spread: 30 },  // SE medium
+  { bearing: 270, strength: -80, spread: 20 },  // W weak
+  { bearing: 315, strength: -62, spread: 35 },  // NW medium-strong
+];
+
+function getSignalAtBearing(bearing) {
+  let totalPower = 0;
+  for (const src of SIGNAL_SOURCES) {
+    let diff = Math.abs(((bearing - src.bearing) + 540) % 360 - 180);
+    if (diff < src.spread) {
+      const factor = Math.cos((diff / src.spread) * Math.PI / 2);
+      totalPower += Math.pow(10, src.strength / 10) * factor * factor;
+    }
+  }
+  const noiseFloor = Math.pow(10, -100 / 10);
+  const noise = noiseFloor * (0.8 + Math.random() * 0.4);
+  totalPower += noise;
+  const dBm = 10 * Math.log10(totalPower);
+  return Math.max(-110, Math.min(-40, dBm));
+}
+
+// ─── UTILITIES ─────────────────────────────────────────────────────────────
+const DIR_NAMES = ['N','NE','E','SE','S','SW','W','NW'];
+
+function bearingToPoint(lat, lng, bearingDeg, distanceM) {
+  const R = 6371000;
+  const φ1 = lat * Math.PI / 180;
+  const λ1 = lng * Math.PI / 180;
+  const θ  = bearingDeg * Math.PI / 180;
+  const d  = distanceM / R;
+  const φ2 = Math.asin(Math.sin(φ1)*Math.cos(d) + Math.cos(φ1)*Math.sin(d)*Math.cos(θ));
+  const λ2 = λ1 + Math.atan2(Math.sin(θ)*Math.sin(d)*Math.cos(φ1), Math.cos(d)-Math.sin(φ1)*Math.sin(φ2));
+  return [φ2 * 180/Math.PI, λ2 * 180/Math.PI];
+}
+
+function dBmToColor(dbm) {
+  // -40 dBm = red (strong), -110 dBm = dark blue (weak)
+  const t = Math.max(0, Math.min(1, (dbm + 110) / 70));
+  const r = Math.round(255 * t);
+  const g = Math.round(180 * t * (1 - t) * 4);
+  const b = Math.round(255 * (1 - t));
+  return `rgb(${r},${g},${b})`;
+}
+
+function dBmToAlpha(dbm) {
+  return Math.max(0.05, Math.min(0.6, (dbm + 110) / 70 * 0.6));
+}
+
+function dBmToRadius(dbm) {
+  return Math.max(500, BEAM_RANGE_M * Math.max(0, (dbm + 110) / 70));
+}
+
+// ─── MAP RENDERING ─────────────────────────────────────────────────────────
+function buildBeamPoints(dirIdx, dbm) {
+  const bearing = dirIdx * BEAM_STEP;
+  const halfBeam = BEAM_STEP / 2;
+  const steps = 8;
+  const radius = dBmToRadius(dbm);
+  const points = [[ANTENNA_LAT, ANTENNA_LNG]];
+  for (let i = 0; i <= steps; i++) {
+    const b = bearing - halfBeam + (i / steps) * BEAM_STEP;
+    points.push(bearingToPoint(ANTENNA_LAT, ANTENNA_LNG, b, radius));
+  }
+  points.push([ANTENNA_LAT, ANTENNA_LNG]);
+  return points;
+}
+
+function fadeOutAndRemove(poly, durationMs) {
+  if (!poly) return;
+  const steps = 20;
+  const interval = durationMs / steps;
+  const startFill = poly.options.fillOpacity;
+  const startStroke = poly.options.opacity;
+  let step = 0;
+  const timer = setInterval(() => {
+    step++;
+    const t = 1 - step / steps;
+    poly.setStyle({ fillOpacity: startFill * t, opacity: startStroke * t });
+    if (step >= steps) {
+      clearInterval(timer);
+      map.removeLayer(poly);
+    }
+  }, interval);
+}
+
+function drawBeamOnMap(dirIdx, dbm, freqMhz, hit) {
+  const color    = hit ? dBmToColor(dbm) : '#334455';
+  const alpha    = hit ? dBmToAlpha(dbm) : 0.08;
+  const freqLabel = freqMhz ? `${freqMhz.toFixed(1)} MHz<br>` : '';
+  const hitLabel  = hit ? '' : '<br><span style="color:#888">below threshold</span>';
+  const poly = L.polygon(buildBeamPoints(dirIdx, dbm), {
+    color, fillColor: color,
+    weight: hit ? 1 : 0.5,
+    opacity: hit ? alpha * 1.5 : 0.3,
+    fillOpacity: alpha,
+    interactive: true,
+  })
+  .bindTooltip(
+    `${DIR_NAMES[dirIdx]}<br>${freqLabel}${dbm.toFixed(1)} dBm${hitLabel}`,
+    { sticky: true, className: 'beam-tip' }
+  )
+  .addTo(map);
+  return poly;
+}
+
+// ─── RADAR CANVAS ──────────────────────────────────────────────────────────
+const radarCanvas = document.getElementById('radar-canvas');
+const rctx = radarCanvas.getContext('2d');
+const RC = 90; // center
+
+function drawRadar(scanValues, sweepAngle) {
+  const W = radarCanvas.width;
+  rctx.clearRect(0,0,W,W);
+
+  // Background
+  rctx.fillStyle = '#0a0a1a';
+  rctx.beginPath(); rctx.arc(RC,RC,RC-2,0,Math.PI*2); rctx.fill();
+
+  // Grid rings
+  [0.33, 0.66, 1].forEach(r => {
+    rctx.beginPath();
+    rctx.arc(RC,RC,(RC-2)*r,0,Math.PI*2);
+    rctx.strokeStyle = '#00ff8822';
+    rctx.lineWidth = 1;
+    rctx.stroke();
+  });
+
+  // Cardinal lines
+  [0,45,90,135].forEach(a => {
+    const rad = a * Math.PI/180;
+    rctx.beginPath();
+    rctx.moveTo(RC + Math.cos(rad-Math.PI/2)*(RC-2), RC + Math.sin(rad-Math.PI/2)*(RC-2));
+    rctx.lineTo(RC - Math.cos(rad-Math.PI/2)*(RC-2), RC - Math.sin(rad-Math.PI/2)*(RC-2));
+    rctx.strokeStyle = '#00ff8818';
+    rctx.stroke();
+  });
+
+  // Signal beams
+  scanValues.forEach((dbm, i) => {
+    const bearing = i * BEAM_STEP;
+    const rad     = (bearing - 90) * Math.PI/180;
+    const t       = Math.max(0, Math.min(1, (dbm + 110) / 70));
+    const r       = (RC - 4) * t;
+    const hw      = (BEAM_STEP / 2 - 3) * Math.PI/180;
+
+    rctx.beginPath();
+    rctx.moveTo(RC, RC);
+    rctx.arc(RC, RC, r, rad - hw, rad + hw);
+    rctx.closePath();
+    rctx.fillStyle = dBmToColor(dbm);
+    rctx.globalAlpha = 0.7;
+    rctx.fill();
+    rctx.globalAlpha = 1;
+  });
+
+  // Sweep line
+  const sweepRad = (sweepAngle - 90) * Math.PI/180;
+  const grad = rctx.createLinearGradient(RC,RC,
+    RC + Math.cos(sweepRad)*(RC-2), RC + Math.sin(sweepRad)*(RC-2));
+  grad.addColorStop(0,'rgba(0,255,136,0)');
+  grad.addColorStop(1,'rgba(0,255,136,0.9)');
+  rctx.beginPath();
+  rctx.moveTo(RC,RC);
+  rctx.lineTo(RC + Math.cos(sweepRad)*(RC-2), RC + Math.sin(sweepRad)*(RC-2));
+  rctx.strokeStyle = grad;
+  rctx.lineWidth = 2;
+  rctx.stroke();
+
+  // Sweep trail (fade arc behind)
+  rctx.beginPath();
+  rctx.moveTo(RC,RC);
+  rctx.arc(RC,RC,RC-2, sweepRad - Math.PI/2, sweepRad, false);
+  rctx.closePath();
+  const trailGrad = rctx.createRadialGradient(RC,RC,0,RC,RC,RC-2);
+  trailGrad.addColorStop(0,'rgba(0,255,136,0.05)');
+  trailGrad.addColorStop(1,'rgba(0,255,136,0.15)');
+  rctx.fillStyle = trailGrad;
+  rctx.fill();
+
+  // N label
+  rctx.fillStyle = '#00ff88';
+  rctx.font = 'bold 10px monospace';
+  rctx.textAlign = 'center';
+  rctx.fillText('N', RC, 10);
+  rctx.fillText('S', RC, W-2);
+  rctx.textAlign = 'left';
+  rctx.fillText('E', W-12, RC+4);
+  rctx.textAlign = 'right';
+  rctx.fillText('W', 12, RC+4);
+
+  // Center dot
+  rctx.beginPath(); rctx.arc(RC,RC,3,0,Math.PI*2);
+  rctx.fillStyle = '#00ff88'; rctx.fill();
+}
+
+// ─── SIGNAL BARS UI ────────────────────────────────────────────────────────
+function buildBars() {
+  const container = document.getElementById('signal-bars');
+  container.innerHTML = '';
+  DIR_NAMES.forEach((name, i) => {
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${name}</div>
+      <div class="bar-track"><div class="bar-fill" id="bar-${i}" style="width:0%;background:#1a3a2a"></div></div>
+      <div class="bar-value" id="bar-val-${i}">—</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function updateBars(scanValues) {
+  scanValues.forEach((dbm, i) => {
+    const pct = Math.max(0, Math.min(100, (dbm + 110) / 70 * 100));
+    document.getElementById(`bar-${i}`).style.width = pct + '%';
+    document.getElementById(`bar-${i}`).style.background = dBmToColor(dbm);
+    document.getElementById(`bar-val-${i}`).textContent = dbm.toFixed(0) + 'dBm';
+  });
+}
+
+// ─── MAIN SCAN LOOP ────────────────────────────────────────────────────────
+let scanValues = new Array(DIRECTIONS).fill(-110);
+let scanFreqs  = new Array(DIRECTIONS).fill(null);  // peak freq per direction
+let sweepAngle = 0;
+let stepInterval = null;
+let stepInScan  = 0;
+
+function processScanStep(dirIdx, dbm, freqMhz, hit, peaks) {
+  if (paused) return;
+
+  // Remove scanning progress layer
+  if (scanningLayers[dirIdx]) {
+    map.removeLayer(scanningLayers[dirIdx]);
+    scanningLayers[dirIdx] = null;
+  }
+
+  sweepAngle = dirIdx * BEAM_STEP;
+  scanValues[dirIdx] = dbm;
+  if (freqMhz) scanFreqs[dirIdx] = freqMhz;
+  signalHistory[dirIdx].push(dbm);
+  if (signalHistory[dirIdx].length > maxHistory) signalHistory[dirIdx].shift();
+
+  // Fade out previous scan's beam for this direction
+  if (prevLayers[dirIdx]) {
+    fadeOutAndRemove(prevLayers[dirIdx], scanSpeed * 0.8);
+    prevLayers[dirIdx] = null;
+  }
+  if (currLayers[dirIdx]) map.removeLayer(currLayers[dirIdx]);
+
+  const isHit = dbm >= THRESHOLD;
+  currLayers[dirIdx] = drawBeamOnMap(dirIdx, dbm, freqMhz, isHit);
+  placeHitMarkers(dirIdx, isHit ? (peaks || []) : []);
+
+  drawRadar(scanValues, sweepAngle);
+  updateBars(scanValues);
+
+  if ((dirIdx + 1) % DIRECTIONS === 0) {
+    prevLayers = [...currLayers];
+    currLayers = new Array(DIRECTIONS).fill(null);
+
+    scanCount++;
+    document.getElementById('stat-scan').textContent = scanCount;
+    const peakIdx = scanValues.indexOf(Math.max(...scanValues));
+    document.getElementById('stat-peak-dir').textContent = `${DIR_NAMES[peakIdx]} (${peakIdx * BEAM_STEP}°)`;
+    document.getElementById('stat-peak-dbm').textContent = scanValues[peakIdx].toFixed(1) + ' dBm';
+    if (scanFreqs[peakIdx]) {
+      document.getElementById('stat-peak-dbm').textContent +=
+        ` @ ${scanFreqs[peakIdx].toFixed(1)} MHz`;
+    }
+    document.getElementById('stat-lat').textContent = ANTENNA_LAT.toFixed(4);
+    document.getElementById('stat-lng').textContent = ANTENNA_LNG.toFixed(4);
+    document.getElementById('status').textContent = `Scan #${scanCount} | ${new Date().toLocaleTimeString()}`;
+  }
+}
+
+// ─── SIMULATION FALLBACK ────────────────────────────────────────────────────
+const SIM_SOURCES = [
+  { bearing: 22,  strength: -55, spread: 25 },
+  { bearing: 135, strength: -70, spread: 30 },
+  { bearing: 270, strength: -80, spread: 20 },
+  { bearing: 315, strength: -62, spread: 35 },
+];
+
+function simStep() {
+  const bearing = stepInScan * BEAM_STEP;
+  processScanStep(stepInScan, getSignalAtBearing(bearing));
+  stepInScan = (stepInScan + 1) % DIRECTIONS;
+}
+
+function startSimulation() {
+  if (stepInterval) clearInterval(stepInterval);
+  stepInterval = setInterval(simStep, scanSpeed / DIRECTIONS);
+}
+
+function stopSimulation() {
+  if (stepInterval) { clearInterval(stepInterval); stepInterval = null; }
+}
+
+// ─── THRESHOLD, GAIN, SWEEP ─────────────────────────────────────────────────
+let THRESHOLD  = -80.0;
+let VGA_GAIN   = 40;
+let LNA_GAIN   = 32;
+let FREQ_MIN   = 100;    // MHz
+let FREQ_MAX   = 6000;   // MHz
+let FOCUS_SPAN = 50;     // MHz
+
+function sendConfig(data) {
+  if (wsActive && ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'config', data }));
+}
+
+function focusOnFreq(freqMhz) {
+  const half   = FOCUS_SPAN / 2;
+  const newMin = Math.max(1,    Math.round(freqMhz - half));
+  const newMax = Math.min(6000, Math.round(freqMhz + half));
+  FREQ_MIN = newMin; FREQ_MAX = newMax;
+  sendConfig({ freq_min: newMin, freq_max: newMax });
+  document.getElementById('stat-sweep').textContent = `${newMin}–${newMax} MHz 🔍`;
+  document.getElementById('stat-sweep').style.color = '#ffaa00';
+  document.getElementById('btn-wide').style.display = '';
+}
+
+function wideMode() {
+  FREQ_MIN = 100; FREQ_MAX = 6000;
+  sendConfig({ freq_min: 100, freq_max: 6000 });
+  document.getElementById('stat-sweep').textContent = '100–6000 MHz';
+  document.getElementById('stat-sweep').style.color = '';
+  document.getElementById('btn-wide').style.display = 'none';
+  document.getElementById('btn-clear').click();
+}
+
+// ─── HIT MARKERS ─────────────────────────────────────────────────────────────
+// hitMarkers[dirIdx] = array of Leaflet markers
+let hitMarkers = Array.from({length: DIRECTIONS}, () => []);
+
+function clearHitMarkers(dirIdx) {
+  hitMarkers[dirIdx].forEach(m => map.removeLayer(m));
+  hitMarkers[dirIdx] = [];
+}
+
+function placeHitMarkers(dirIdx, peaks) {
+  clearHitMarkers(dirIdx);
+  if (!peaks || peaks.length === 0) return;
+
+  const bearing  = dirIdx * BEAM_STEP;
+  const halfBeam = BEAM_STEP / 2;
+  const n        = peaks.length;
+
+  // Sort peaks by frequency so they fan out in freq order left→right across beam
+  const sorted = [...peaks].sort((a, b) => a.freq_mhz - b.freq_mhz);
+
+  sorted.forEach((peak, i) => {
+    // Radial distance: strong signal → close (20%), weak → far (90%)
+    const MIN_DBM = -110, MAX_DBM = -20;
+    const norm    = Math.max(0, Math.min(1, (peak.dbm - MIN_DBM) / (MAX_DBM - MIN_DBM)));
+    const frac    = 0.9 - norm * 0.7;   // strong=0.2 … weak=0.9
+    const radius  = BEAM_RANGE_M * frac;
+
+    // Fan across beam width: spread evenly within ±(halfBeam * 0.6)
+    const spread  = halfBeam * 0.65;
+    const offset  = n === 1 ? 0 : -spread + (i / (n - 1)) * spread * 2;
+    const b       = bearing + offset;
+    const pos     = bearingToPoint(ANTENNA_LAT, ANTENNA_LNG, b, radius);
+    const color   = dBmToColor(peak.dbm);
+    const dotSize = Math.max(7, Math.min(14, 7 + (peak.dbm + 80) / 5));
+
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="position:relative;width:0;height:0;">
+        <div class="hm-dot" data-color="${color}" style="
+          width:${dotSize}px;height:${dotSize}px;border-radius:50%;
+          background:${color};border:2px solid #fff;
+          box-shadow:0 0 10px ${color};
+          position:absolute;
+          top:${-dotSize/2}px;left:${-dotSize/2}px;
+          cursor:pointer;
+          transition:transform 0.15s ease, box-shadow 0.15s ease;
+          z-index:10;
+        "></div>
+        <div class="hit-label" style="top:${dotSize/2 + 3}px; pointer-events:none;">
+          ${peak.freq_mhz} MHz<br>${peak.dbm} dBm
+        </div>
+      </div>`,
+      iconSize: [0, 0], iconAnchor: [0, 0],
+    });
+
+    const m = L.marker(pos, { icon, interactive: true, zIndexOffset: 1000 })
+      .addTo(map);
+
+    // Hover: scale up dot
+    m.on('mouseover', function() {
+      const el = this.getElement();
+      if (el) el.querySelector('.hm-dot').style.transform = 'scale(1.6)';
+    });
+    m.on('mouseout', function() {
+      const el = this.getElement();
+      if (el) el.querySelector('.hm-dot').style.transform = 'scale(1)';
+    });
+
+    // Click: focus + mark selected, stop propagation
+    m.on('click', function(e) {
+      L.DomEvent.stopPropagation(e);
+      // Clear previous selection ring
+      document.querySelectorAll('.hm-dot.selected').forEach(d => {
+        d.classList.remove('selected');
+        d.style.boxShadow = `0 0 10px ${d.dataset.color}`;
+        d.style.borderColor = '#fff';
+      });
+      const dot = this.getElement()?.querySelector('.hm-dot');
+      if (dot) {
+        dot.classList.add('selected');
+        dot.style.borderColor = '#ffaa00';
+        dot.style.boxShadow   = '0 0 14px #ffaa00, 0 0 4px #fff';
+      }
+      focusOnFreq(peak.freq_mhz);
+    });
+
+    hitMarkers[dirIdx].push(m);
+  });
+}
+
+// ─── SCANNING BEAM (progress animation) ─────────────────────────────────────
+let scanningLayers = new Array(DIRECTIONS).fill(null);  // in-progress beams
+
+function buildSweepPoints(dirIdx, radiusFraction) {
+  const radius = BEAM_RANGE_M * Math.max(0.01, radiusFraction);
+  const bearing  = dirIdx * BEAM_STEP;
+  const halfBeam = BEAM_STEP / 2;
+  const steps    = 8;
+  const pts      = [[ANTENNA_LAT, ANTENNA_LNG]];
+  for (let i = 0; i <= steps; i++) {
+    const b = bearing - halfBeam + (i / steps) * BEAM_STEP;
+    pts.push(bearingToPoint(ANTENNA_LAT, ANTENNA_LNG, b, radius));
+  }
+  pts.push([ANTENNA_LAT, ANTENNA_LNG]);
+  return pts;
+}
+
+function handleScanStart(msg) {
+  const i = msg.dirIdx;
+  // Remove any existing scanning layer for this direction
+  if (scanningLayers[i]) { map.removeLayer(scanningLayers[i]); }
+
+  // Draw an outline-only beam at full size — shows the scanning target area
+  scanningLayers[i] = L.polygon(buildSweepPoints(i, 1.0), {
+    color: '#00aaff', fillColor: '#00aaff',
+    weight: 1.5, opacity: 0.5, fillOpacity: 0.05,
+    dashArray: '4 4', interactive: false,
+  }).addTo(map);
+}
+
+function handleScanProgress(msg) {
+  const i    = msg.dirIdx;
+  const prog = msg.progress;           // 0.0 → 1.0
+
+  // Update the scanning layer: filled portion grows with progress
+  if (scanningLayers[i]) {
+    scanningLayers[i].setLatLngs(buildSweepPoints(i, prog));
+
+    // Color: blue (scanning) → yellow (hit) based on whether we see a signal
+    const isHit   = msg.hit;
+    const color   = isHit ? '#ffcc00' : '#00aaff';
+    const fillOp  = isHit ? 0.25 : 0.12;
+    scanningLayers[i].setStyle({
+      color, fillColor: color, fillOpacity: fillOp, opacity: 0.7,
+      dashArray: null,
+    });
+
+    // Show tooltip with current frequency + peak so far
+    const peakStr = msg.peak_dbm > THRESHOLD
+      ? `Peak: ${msg.peak_dbm.toFixed(1)} dBm @ ${msg.peak_freq.toFixed(1)} MHz`
+      : 'Scanning…';
+    scanningLayers[i].bindTooltip(
+      `${DIR_NAMES[i]}<br>${msg.cur_freq.toFixed(1)} MHz<br>${peakStr}`,
+      { sticky: true, permanent: false, className: 'beam-tip' }
+    );
+  }
+}
+
+// ─── WEBSOCKET CLIENT ───────────────────────────────────────────────────────
+const WS_URL  = 'ws://localhost:8765';
+const wsBadge = document.getElementById('ws-badge');
+let ws        = null;
+let wsActive  = false;
+let wsRetryT  = null;
+
+function setBadge(state, text) {
+  wsBadge.className = '';
+  if (state) wsBadge.classList.add(state);
+  wsBadge.textContent = text;
+}
+
+function wsConnect() {
+  if (ws) { try { ws.close(); } catch(_){} }
+
+  setBadge('', 'WS: connecting…');
+  ws = new WebSocket(WS_URL);
+
+  ws.onopen = () => {
+    wsActive = true;
+    stopSimulation();
+    setBadge('live', 'WS: SDR LIVE');
+    // Send current scan speed
+    ws.send(JSON.stringify({ type: 'config', data: { scan_speed: scanSpeed / 1000 } }));
+  };
+
+  ws.onmessage = (ev) => {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch(_) { return; }
+
+    if (msg.type === 'hello') {
+      setBadge(msg.sim ? 'sim' : 'live', msg.sim ? 'WS: SIM' : 'WS: SDR LIVE');
+      setDeviceUI(!msg.sim, null, null);
+      ws.send(JSON.stringify({ type: 'list_devices' }));
+      if (msg.scan_speed) scanSpeed = msg.scan_speed * 1000;
+      if (msg.threshold != null) {
+        THRESHOLD = msg.threshold;
+        document.getElementById('thresh-slider').value = THRESHOLD;
+        document.getElementById('thresh-val').textContent = THRESHOLD;
+      }
+      if (msg.vga_gain != null) {
+        VGA_GAIN = msg.vga_gain;
+        document.getElementById('gain-slider').value = VGA_GAIN;
+        document.getElementById('gain-val').textContent = VGA_GAIN;
+      }
+      if (msg.lna_gain != null) {
+        LNA_GAIN = msg.lna_gain;
+        document.getElementById('lna-slider').value = LNA_GAIN;
+        document.getElementById('lna-val').textContent = LNA_GAIN;
+      }
+      if (msg.freq_min && msg.freq_max) {
+        FREQ_MIN = msg.freq_min; FREQ_MAX = msg.freq_max;
+        document.getElementById('stat-sweep').textContent =
+          `${msg.freq_min}–${msg.freq_max} MHz`;
+        document.getElementById('status').textContent =
+          `Sweep ${msg.freq_min}–${msg.freq_max} MHz`;
+      }
+    }
+
+    if (msg.type === 'devices') {
+      const btn = document.getElementById('btn-hdr-scan');
+      btn.textContent = '🔍 Scan'; btn.disabled = false;
+      setDeviceUI(msg.devices.length > 0, null, msg.devices);
+    }
+    if (msg.type === 'device_status') {
+      const btn = document.getElementById('btn-hdr-connect');
+      btn.textContent = '⚡ Connect'; btn.disabled = false;
+      setDeviceUI(msg.connected, null, msg.devices);
+      if (msg.connected) {
+        setBadge('live', 'WS: SDR LIVE');
+        document.getElementById('status').textContent = `HackRF prijungtas — ${new Date().toLocaleTimeString()}`;
+      } else {
+        setBadge('sim', 'WS: SIM');
+      }
+    }
+    if (msg.type === 'scan_start')    handleScanStart(msg);
+    if (msg.type === 'scan_progress') handleScanProgress(msg);
+    if (msg.type === 'scan_step') {
+      setBadge(msg.sim ? 'sim' : 'live', msg.sim ? 'WS: SIM' : 'WS: SDR LIVE');
+      processScanStep(msg.dirIdx, msg.dbm, msg.freq_mhz, msg.hit, msg.peaks);
+    }
+  };
+
+  ws.onerror = () => {
+    setBadge('err', 'WS: error');
+  };
+
+  ws.onclose = () => {
+    wsActive = false;
+    setBadge('err', 'WS: offline → sim');
+    startSimulation();
+    // Retry every 5 s
+    clearTimeout(wsRetryT);
+    wsRetryT = setTimeout(wsConnect, 5000);
+  };
+}
+
+function startScanning() {
+  wsConnect();
+  // Simulation starts if WS fails to connect (handled in onclose)
+}
+
+// ─── CONTROLS ──────────────────────────────────────────────────────────────
+document.getElementById('btn-pause').addEventListener('click', function() {
+  paused = !paused;
+  this.textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
+  this.classList.toggle('active', paused);
+  document.getElementById('status').textContent = paused ? 'PAUSED' : 'Scanning...';
+  if (wsActive && ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'pause', value: paused }));
+  }
+});
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  [...currLayers, ...prevLayers, ...scanningLayers]
+    .forEach(l => l && map.removeLayer(l));
+  for (let i = 0; i < DIRECTIONS; i++) clearHitMarkers(i);
+  currLayers     = new Array(DIRECTIONS).fill(null);
+  prevLayers     = new Array(DIRECTIONS).fill(null);
+  scanningLayers = new Array(DIRECTIONS).fill(null);
+  scanValues     = new Array(DIRECTIONS).fill(-110);
+  drawRadar(scanValues, sweepAngle);
+  updateBars(scanValues);
+});
+
+document.getElementById('btn-wide').addEventListener('click', wideMode);
+
+// ─── DEVICE PANEL (header) ────────────────────────────────────────────────
+function setDeviceUI(connected, label, devices) {
+  const dot = document.getElementById('hdr-device-dot');
+  const sel = document.getElementById('hdr-device-select');
+  dot.style.background = connected ? '#00ff88' : '#ff4444';
+  dot.style.boxShadow  = connected ? '0 0 6px #00ff88' : 'none';
+  if (devices && devices.length) {
+    sel.innerHTML = devices.map(d =>
+      `<option value="${d.index}">${d.board || 'HackRF'} #${d.index}${d.firmware ? ' · ' + d.firmware : ''}</option>`
+    ).join('');
+  } else if (!connected) {
+    sel.innerHTML = '<option value="">— Nėra įrenginių —</option>';
+  }
+}
+
+document.getElementById('btn-hdr-scan').addEventListener('click', function() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  this.textContent = '⏳'; this.disabled = true;
+  ws.send(JSON.stringify({ type: 'list_devices' }));
+  setTimeout(() => { this.textContent = '🔍 Scan'; this.disabled = false; }, 3000);
+});
+
+document.getElementById('btn-hdr-connect').addEventListener('click', function() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  const btn = this;
+  btn.textContent = '⏳'; btn.disabled = true;
+  ws.send(JSON.stringify({ type: 'reconnect' }));
+  setTimeout(() => { btn.textContent = '⚡ Connect'; btn.disabled = false; }, 5000);
+});
+
+document.getElementById('span-slider').addEventListener('input', function() {
+  FOCUS_SPAN = parseInt(this.value);
+  document.getElementById('span-val').textContent = this.value;
+});
+
+document.getElementById('gain-slider').addEventListener('input', function() {
+  VGA_GAIN = parseInt(this.value);
+  document.getElementById('gain-val').textContent = this.value;
+  if (wsActive && ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'config', data: { vga_gain: VGA_GAIN } }));
+});
+
+document.getElementById('lna-slider').addEventListener('input', function() {
+  LNA_GAIN = parseInt(this.value);
+  document.getElementById('lna-val').textContent = this.value;
+  if (wsActive && ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'config', data: { lna_gain: LNA_GAIN } }));
+});
+
+document.getElementById('thresh-slider').addEventListener('input', function() {
+  THRESHOLD = parseFloat(this.value);
+  document.getElementById('thresh-val').textContent = this.value;
+  if (wsActive && ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'config', data: { threshold: THRESHOLD } }));
+});
+
+document.getElementById('speed-slider').addEventListener('input', function() {
+  scanSpeed = parseFloat(this.value) * 1000;
+  document.getElementById('speed-val').textContent = this.value;
+  if (wsActive && ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: 'config', data: { scan_speed: parseFloat(this.value) } }));
+  } else {
+    stopSimulation();
+    startSimulation();
+  }
+});
+
+document.getElementById('history-slider').addEventListener('input', function() {
+  maxHistory = parseInt(this.value);
+  document.getElementById('history-val').textContent = this.value;
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+buildBars();
+drawRadar(scanValues, 0);
+
+// Start scanning immediately — don't wait for geolocation
+startScanning();
+document.getElementById('status').textContent = 'Locating...';
+
+function applyLocation(lat, lng) {
+  ANTENNA_LAT = lat;
+  ANTENNA_LNG = lng;
+  map.setView([lat, lng], 13);
+  antennaMarker.setLatLng([lat, lng]);
+  antennaMarker.bindPopup(`SDR Antenna<br>${lat.toFixed(5)}°N ${lng.toFixed(5)}°E`);
+  document.getElementById('stat-lat').textContent = lat.toFixed(4);
+  document.getElementById('stat-lng').textContent = lng.toFixed(4);
+  document.getElementById('status').textContent = 'Scanning...';
+}
+
+if ('geolocation' in navigator) {
+  navigator.geolocation.getCurrentPosition(
+    pos => applyLocation(pos.coords.latitude, pos.coords.longitude),
+    err => {
+      console.warn('Geolocation failed:', err.message);
+      document.getElementById('status').textContent = 'Location denied — using default';
+    },
+    { enableHighAccuracy: true, timeout: 8000 }
+  );
+} else {
+  document.getElementById('status').textContent = 'Scanning (no geolocation)';
+}
+</script>
+</body>
+</html>

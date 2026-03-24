@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sdr-map",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "autoPort": true
+    }
+  ]
+}

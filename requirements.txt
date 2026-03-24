@@ -1,0 +1,7 @@
+websockets>=12.0
+numpy>=1.24
+# SoapySDR must be installed via system package or conda:
+# macOS:  brew install soapysdr
+# Ubuntu: sudo apt install python3-soapysdr
+# HackRF: brew install soapyhackrf  / apt install soapysdr-module-hackrf
+# bladeRF:brew install soapybladerf / apt install soapysdr-module-bladerf
