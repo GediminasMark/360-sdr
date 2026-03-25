@@ -63,9 +63,121 @@
       position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
       background: #111827ee; border: 1px solid #00ff8866; border-radius: 4px;
       color: #00ff88; font-family: monospace; font-size: 10px;
-      padding: 2px 5px; white-space: nowrap; pointer-events: none;
-      text-align: center; line-height: 1.4;
+      padding: 2px 5px; white-space: nowrap;
+      text-align: center; line-height: 1.4; cursor: pointer;
     }
+    .hm-wrap:hover .hm-dot { transform: scale(1.6); }
+    .hm-wrap:hover .hit-label { border-color: #00ff88; background: #1a2a1aee; }
+    /* Signal label tag under hit-label */
+    .sig-tag {
+      display:inline-block; margin-top:2px; padding:1px 5px;
+      border-radius:3px; font-size:9px; font-weight:bold;
+      white-space:nowrap; letter-spacing:0.5px;
+      pointer-events:none;
+    }
+    /* Label mode: selection ring on dot */
+    .hm-dot.in-selection {
+      border-color: #ffcc00 !important;
+      box-shadow: 0 0 14px #ffcc00, 0 0 4px #fff !important;
+      transform: scale(1.4);
+    }
+    /* Label modal */
+    #label-modal {
+      display:none; position:fixed; inset:0; z-index:20000;
+      background:#000a; align-items:center; justify-content:center;
+    }
+    #label-modal.open { display:flex; }
+    #label-modal-box {
+      background:#111118; border:1px solid #00ff8844; border-radius:10px;
+      padding:20px; min-width:280px; font-family:monospace; color:#ccc;
+    }
+    #label-modal-box h3 { color:#00ff88; margin-bottom:14px; font-size:13px; letter-spacing:1px; }
+    #label-modal-box label { font-size:11px; color:#888; display:block; margin-bottom:3px; }
+    #label-modal-box input[type=text] {
+      width:100%; background:#0d1117; color:#eee; border:1px solid #00ff8844;
+      border-radius:4px; padding:5px 8px; font-size:12px; font-family:monospace;
+      margin-bottom:10px; box-sizing:border-box;
+    }
+    #label-modal-box input[type=text]:focus { outline:none; border-color:#00ff88; }
+    #label-modal-box .freq-range { font-size:11px; color:#00aaff; margin-bottom:12px; }
+    #label-modal-colors { display:flex; gap:6px; margin-bottom:14px; }
+    .lbl-color-btn {
+      width:20px; height:20px; border-radius:50%; border:2px solid transparent;
+      cursor:pointer; transition:transform 0.15s;
+    }
+    .lbl-color-btn.active, .lbl-color-btn:hover { transform:scale(1.3); border-color:#fff; }
+    #label-modal-actions { display:flex; gap:8px; justify-content:flex-end; }
+    .lbl-btn {
+      padding:5px 14px; font-size:11px; font-family:monospace; border-radius:4px;
+      cursor:pointer; border:1px solid; background:transparent;
+    }
+    .lbl-btn-save { border-color:#00ff88; color:#00ff88; }
+    .lbl-btn-cancel { border-color:#555; color:#666; }
+    /* Header labels dropdown panel */
+    #btn-hdr-labels-panel {
+      padding:3px 10px; font-size:11px; font-family:monospace;
+      border-radius:4px; cursor:pointer; border:1px solid #a29bfe88;
+      color:#a29bfe; background:transparent; transition:background 0.2s;
+      white-space:nowrap;
+    }
+    #btn-hdr-labels-panel.active { background:#a29bfe22; }
+    #labels-panel {
+      display:none; position:fixed; z-index:15000;
+      background:#0d0d1a; border:1px solid #a29bfe44;
+      border-radius:8px; min-width:280px; max-width:340px;
+      box-shadow:0 6px 30px #000a; font-family:monospace;
+      overflow:hidden;
+    }
+    #labels-panel.open { display:block; }
+    .lp-row {
+      display:flex; align-items:center; gap:8px;
+      padding:7px 12px; border-bottom:1px solid #ffffff08;
+      transition:background 0.12s; cursor:default;
+    }
+    .lp-row:hover { background:#ffffff08; }
+    .lp-toggle {
+      width:28px; height:16px; border-radius:8px; border:none; cursor:pointer;
+      flex-shrink:0; transition:background 0.2s; position:relative;
+    }
+    .lp-toggle::after {
+      content:''; position:absolute; top:2px; left:2px;
+      width:12px; height:12px; border-radius:50%; background:#fff;
+      transition:transform 0.2s;
+    }
+    .lp-toggle.on  { background:#a29bfe; }
+    .lp-toggle.off { background:#333; }
+    .lp-toggle.on::after  { transform:translateX(12px); }
+    .lp-toggle.off::after { transform:none; }
+    .lp-name {
+      flex:1; font-size:11px; color:#ddd; cursor:pointer;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .lp-name:hover { color:#a29bfe; text-decoration:underline; }
+    .lp-freq { font-size:9px; color:#555; white-space:nowrap; }
+    .lp-scan-btn {
+      padding:2px 7px; font-size:10px; border-radius:3px; cursor:pointer;
+      border:1px solid #a29bfe66; color:#a29bfe88; background:transparent;
+      transition:all 0.15s; white-space:nowrap;
+    }
+    .lp-scan-btn:hover { border-color:#a29bfe; color:#a29bfe; background:#a29bfe11; }
+    .lp-scan-btn.active { border-color:#ffcc00; color:#ffcc00; background:#ffcc0011; }
+    #lp-footer {
+      display:flex; gap:6px; padding:8px 12px; border-top:1px solid #a29bfe22;
+      background:#111120;
+    }
+    #btn-hdr-label-mode {
+      padding:3px 10px; font-size:11px; font-family:monospace;
+      border-radius:4px; cursor:pointer; border:1px solid #ffcc00;
+      color:#ffcc00; background:transparent; transition:background 0.2s;
+    }
+    #btn-hdr-label-mode.active { background:#ffcc0022; }
+    #label-sel-bar {
+      display:none; position:fixed; bottom:48px; left:50%; transform:translateX(-50%);
+      z-index:10000; background:#111118; border:1px solid #ffcc0066;
+      border-radius:8px; padding:8px 14px; font-family:monospace; font-size:11px;
+      color:#ffcc00; gap:10px; align-items:center;
+    }
+    #label-sel-bar.open { display:flex; }
     #scan-indicator {
       width: 8px; height: 8px; border-radius: 50%;
       background: #00ff88;
@@ -73,9 +185,59 @@
     }
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-    #main { display: flex; flex: 1; overflow: hidden; }
+    #main { display: flex; flex: 1; overflow: hidden; flex-direction: column; }
 
+    #map-row { display: flex; flex: 1; overflow: hidden; }
     #map { flex: 1; }
+
+    /* ── Floating waterfall window ── */
+    #wf-panel {
+      position: fixed; z-index: 15000;
+      top: 60px; left: 60px;
+      width: 420px; height: 320px;
+      background: #07070f;
+      border: 1px solid #00ff8844;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px #000c;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      min-width: 240px; min-height: 160px;
+    }
+    #wf-titlebar {
+      flex-shrink: 0; padding: 4px 8px;
+      background: #111118; border-bottom: 1px solid #00ff8822;
+      font-size: 10px; color: #00ff88; letter-spacing: 1px;
+      display: flex; align-items: center; gap: 4px;
+      cursor: grab; user-select: none;
+    }
+    #wf-titlebar:active { cursor: grabbing; }
+    #btn-wf-close {
+      margin-left: auto; background: transparent; border: none;
+      color: #666; font-size: 12px; cursor: pointer; padding: 0 2px;
+      line-height: 1;
+    }
+    #btn-wf-close:hover { color: #ff4444; }
+    #wf-body {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+    #wf-canvas { display: block; flex: 1; width: 100%; }
+    #wf-freq-axis {
+      flex-shrink: 0; height: 14px;
+      border-top: 1px solid #00ff8822;
+    }
+    #wf-freq-axis canvas { display: block; width: 100%; height: 14px; }
+    #wf-resize-handle {
+      position: absolute; right: 0; bottom: 0;
+      width: 14px; height: 14px; cursor: se-resize;
+      background: linear-gradient(135deg, transparent 50%, #00ff8844 50%);
+      border-radius: 0 0 8px 0;
+    }
+    #wf-range-bar {
+      flex-shrink: 0; height: 22px;
+      border-bottom: 1px solid #00ff8822;
+      background: #040410; cursor: col-resize;
+    }
+    #wf-range-canvas { display: block; width: 100%; height: 22px; }
 
     #sidebar {
       width: 220px;
@@ -88,13 +250,45 @@
       overflow-y: auto;
     }
 
+    /* ── Bottom controls bar ── */
+    #controls-bar {
+      background: #0e0e18;
+      border-top: 1px solid #00ff8822;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    #controls-bar .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #controls-bar label {
+      font-size: 10px;
+      color: #666;
+      white-space: nowrap;
+    }
+    #controls-bar input[type=range] {
+      width: 90px;
+      accent-color: #00ff88;
+    }
+    #controls-bar .ctrl-val {
+      font-size: 10px;
+      color: #00ff88;
+      min-width: 32px;
+    }
+
     #radar-container {
       position: relative;
       width: 180px;
       height: 180px;
       margin: 0 auto;
     }
-    #radar-canvas { display: block; }
+    #radar-canvas { display: block; cursor: pointer; border-radius: 50%; }
+    #radar-canvas:hover { filter: brightness(1.15); }
 
     .section-title {
       font-size: 10px;
@@ -164,49 +358,191 @@
     <button id="btn-hdr-connect" class="hdr-btn" title="Prisijungti">⚡ Connect</button>
   </div>
 
-  <div id="header-right">
+  <div id="header-right" style="display:flex;align-items:center;gap:8px;">
+    <button id="btn-hdr-labels-panel" title="Labelių sąrašas">🏷 Labeliai <span id="lp-count-badge"></span></button>
+    <button id="btn-hdr-label-mode" title="Pasirinkimo režimas signalų žymėjimui">🏷 Label</button>
+    <button id="btn-hdr-labels-mgr" class="hdr-btn" style="border-color:#a29bfe;color:#a29bfe" title="Labelių valdymas">📋 Labels</button>
+    <button id="btn-hdr-waterfall" class="hdr-btn" style="border-color:#00aaff;color:#00aaff" title="Atidaryti Waterfall langą">📊 Waterfall</button>
     <span id="ws-badge">WS: ···</span>
   </div>
 </div>
 
+<!-- Label creation modal -->
+<div id="label-modal">
+  <div id="label-modal-box">
+    <h3>🏷 NAUJAS LABELIS</h3>
+    <label>Pavadinimas</label>
+    <input type="text" id="label-name-input" placeholder="pvz. WiFi 2.4GHz, LTE 700MHz..."/>
+    <div class="freq-range" id="label-freq-range">Dažnis: —</div>
+    <label>Spalva</label>
+    <div id="label-modal-colors"></div>
+    <div id="label-modal-actions">
+      <button class="lbl-btn lbl-btn-cancel" id="btn-label-cancel">Atšaukti</button>
+      <button class="lbl-btn lbl-btn-save"   id="btn-label-save">💾 Išsaugoti</button>
+    </div>
+  </div>
+</div>
+
+<!-- Labels Manager Window -->
+<div id="labels-mgr" style="
+  display:none; position:fixed; inset:0; z-index:25000;
+  background:#000c; align-items:center; justify-content:center;
+">
+  <div style="
+    background:#0d0d1a; border:1px solid #a29bfe44; border-radius:12px;
+    width:680px; max-width:95vw; max-height:85vh;
+    display:flex; flex-direction:column; overflow:hidden;
+    box-shadow:0 8px 40px #000a;
+  ">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #a29bfe22;">
+      <span style="font-family:monospace;font-size:13px;letter-spacing:2px;color:#a29bfe;">📋 SIGNALŲ LABELIAI</span>
+      <button id="btn-mgr-close" style="background:transparent;border:none;color:#666;font-size:16px;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    <!-- New label form -->
+    <div id="mgr-new-form" style="padding:12px 18px;border-bottom:1px solid #a29bfe22;background:#111122;">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input id="mgr-new-name" type="text" placeholder="Pavadinimas" style="
+          flex:2;min-width:120px;background:#0d1117;color:#eee;border:1px solid #a29bfe44;
+          border-radius:4px;padding:5px 8px;font-size:11px;font-family:monospace;"/>
+        <input id="mgr-new-fmin" type="number" placeholder="Min MHz" style="
+          width:90px;background:#0d1117;color:#eee;border:1px solid #a29bfe44;
+          border-radius:4px;padding:5px 8px;font-size:11px;font-family:monospace;"/>
+        <span style="color:#555;font-size:11px;">–</span>
+        <input id="mgr-new-fmax" type="number" placeholder="Max MHz" style="
+          width:90px;background:#0d1117;color:#eee;border:1px solid #a29bfe44;
+          border-radius:4px;padding:5px 8px;font-size:11px;font-family:monospace;"/>
+        <div id="mgr-new-colors" style="display:flex;gap:4px;"></div>
+        <button id="btn-mgr-add" style="
+          padding:5px 12px;font-size:11px;font-family:monospace;
+          background:transparent;border:1px solid #a29bfe;color:#a29bfe;
+          border-radius:4px;cursor:pointer;white-space:nowrap;">+ Pridėti</button>
+      </div>
+    </div>
+    <!-- Labels list -->
+    <div id="mgr-list" style="flex:1;overflow-y:auto;padding:8px 0;"></div>
+    <!-- Footer -->
+    <div style="padding:10px 18px;border-top:1px solid #a29bfe22;display:flex;justify-content:space-between;align-items:center;">
+      <span id="mgr-count" style="font-size:10px;color:#555;font-family:monospace;"></span>
+      <button id="btn-mgr-export" style="
+        padding:4px 10px;font-size:10px;font-family:monospace;
+        background:transparent;border:1px solid #555;color:#666;
+        border-radius:4px;cursor:pointer;">⬇ Eksportuoti JSON</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating waterfall window -->
+<div id="wf-panel" style="display:none">
+  <div id="wf-titlebar">
+    <span>📊 WATERFALL</span>
+    <span id="wf-cur-freq" style="font-size:10px;color:#00ff8888;margin-left:8px;">—</span>
+    <button id="btn-wf-close" title="Uždaryti">✕</button>
+  </div>
+  <div id="wf-range-bar" title="Tempi rankeną — keisti diapazoną">
+    <canvas id="wf-range-canvas" height="22"></canvas>
+  </div>
+  <div id="wf-body">
+    <canvas id="wf-canvas"></canvas>
+    <div id="wf-freq-axis"><canvas id="wf-axis-canvas" height="14"></canvas></div>
+  </div>
+  <div id="wf-resize-handle"></div>
+</div>
+
+<!-- Labels panel dropdown -->
+<div id="labels-panel">
+  <div id="lp-list"></div>
+  <div id="lp-footer">
+    <button id="btn-lp-all" class="lbl-btn" style="flex:1;padding:4px;font-size:10px;border-color:#a29bfe66;color:#a29bfe;">✓ Visi</button>
+    <button id="btn-lp-none" class="lbl-btn" style="flex:1;padding:4px;font-size:10px;border-color:#555;color:#666;">✗ Jokie</button>
+    <button id="btn-lp-wide" class="lbl-btn" style="flex:1;padding:4px;font-size:10px;border-color:#ffcc0066;color:#ffcc0088;">↩ Wide</button>
+  </div>
+</div>
+
+<!-- Selection bar (bottom center) -->
+<div id="label-sel-bar">
+  <span id="label-sel-count">0 pasirinkta</span>
+  <button class="lbl-btn lbl-btn-save" id="btn-label-create" style="padding:3px 10px">🏷 Sukurti labelį</button>
+  <button class="lbl-btn lbl-btn-cancel" id="btn-label-sel-clear" style="padding:3px 8px">✕</button>
+</div>
+
 <div id="main">
-  <div id="map"></div>
+  <div id="map-row">
+    <div id="map"></div>
 
-  <div id="sidebar">
-    <div class="section-title">RADAR</div>
-    <div id="radar-container">
-      <canvas id="radar-canvas" width="180" height="180"></canvas>
+    <div id="sidebar">
+      <div class="section-title">RADAR</div>
+      <div id="radar-container">
+        <canvas id="radar-canvas" width="180" height="180" title="Spausti sektorių — įjungti/išjungti kryptį"></canvas>
+      </div>
+      <button id="btn-toggle-all-dirs" style="margin:4px auto 0;display:block;width:100%;padding:3px 0;font-size:10px;font-family:monospace;background:transparent;border:1px solid #00ff8844;color:#00ff8888;border-radius:4px;cursor:pointer;letter-spacing:1px;" title="Pažymėti / atžymėti visas kryptis">✦ VISOS KRYPTYS</button>
+
+      <div class="section-title">SIGNAL STRENGTH</div>
+      <div id="signal-bars"></div>
+
+      <div class="section-title">STATS</div>
+      <div id="stats">
+        Scan #: <span id="stat-scan">0</span><br>
+        Sweep: <span id="stat-sweep">100–6000 MHz</span><br>
+        Peak dir: <span id="stat-peak-dir">—</span><br>
+        Peak dBm: <span id="stat-peak-dbm">—</span><br>
+        Antenna:
+        <span id="stat-lat" style="cursor:pointer;text-decoration:underline dotted;color:#00ff88" title="Spausti norint įvesti">—</span>,
+        <span id="stat-lng" style="cursor:pointer;text-decoration:underline dotted;color:#00ff88" title="Spausti norint įvesti">—</span>
+        <div id="coord-input-row" style="display:none;margin-top:6px;display:none;gap:4px;">
+          <input id="input-lat" type="number" step="0.00001" placeholder="Lat" style="width:88px;background:#0d1117;color:#ccc;border:1px solid #00ff8866;border-radius:4px;padding:2px 5px;font-size:11px;font-family:monospace;"/>
+          <input id="input-lng" type="number" step="0.00001" placeholder="Lng" style="width:88px;background:#0d1117;color:#ccc;border:1px solid #00ff8866;border-radius:4px;padding:2px 5px;font-size:11px;font-family:monospace;"/>
+          <button id="btn-apply-coords" style="padding:2px 8px;font-size:11px;font-family:monospace;background:transparent;border:1px solid #00ff88;color:#00ff88;border-radius:4px;cursor:pointer;">✓</button>
+          <button id="btn-cancel-coords" style="padding:2px 6px;font-size:11px;font-family:monospace;background:transparent;border:1px solid #555;color:#666;border-radius:4px;cursor:pointer;">✕</button>
+        </div>
+      </div>
+
+      <div style="flex:1"></div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px solid #00ff8822;">
+        <button id="btn-pause">⏹ STOP</button>
+        <button id="btn-clear">🗑 CLEAR</button>
+        <button id="btn-wide" style="display:none;border-color:#ffaa00;color:#ffaa00">↩ WIDE</button>
+      </div>
     </div>
+  </div>
 
-    <div class="section-title">SIGNAL STRENGTH</div>
-    <div id="signal-bars"></div>
-
-    <div class="section-title">STATS</div>
-    <div id="stats">
-      Scan #: <span id="stat-scan">0</span><br>
-      Sweep: <span id="stat-sweep">100–6000 MHz</span><br>
-      Peak dir: <span id="stat-peak-dir">—</span><br>
-      Peak dBm: <span id="stat-peak-dbm">—</span><br>
-      Antenna: <span id="stat-lat">—</span>, <span id="stat-lng">—</span>
-    </div>
-
-    <div class="section-title">CONTROLS</div>
-    <div id="controls">
-      <button id="btn-pause">⏸ PAUSE</button>
-      <button id="btn-clear">🗑 CLEAR MAP</button>
-      <button id="btn-wide" style="display:none;border-color:#ffaa00;color:#ffaa00">↩ WIDE SCAN</button>
-      <label>Focus span: <span id="span-val">50</span> MHz</label>
+  <!-- ── Bottom controls bar ── -->
+  <div id="controls-bar">
+    <div class="ctrl-group">
+      <label>Focus span</label>
       <input type="range" id="span-slider" min="5" max="500" step="5" value="50" />
-      <label>VGA Gain: <span id="gain-val">40</span> dB</label>
+      <span class="ctrl-val"><span id="span-val">50</span> MHz</span>
+    </div>
+
+    <div class="ctrl-group">
+      <label>VGA Gain</label>
       <input type="range" id="gain-slider" min="0" max="62" step="2" value="40" />
-      <label>LNA Gain: <span id="lna-val">32</span> dB</label>
+      <span class="ctrl-val"><span id="gain-val">40</span> dB</span>
+    </div>
+
+    <div class="ctrl-group">
+      <label>LNA Gain</label>
       <input type="range" id="lna-slider" min="0" max="40" step="8" value="32" />
-      <label>Threshold: <span id="thresh-val">-80</span> dBm</label>
+      <span class="ctrl-val"><span id="lna-val">32</span> dB</span>
+    </div>
+
+    <div class="ctrl-group">
+      <label>Threshold</label>
       <input type="range" id="thresh-slider" min="-110" max="-30" step="5" value="-80" />
-      <label>Scan speed: <span id="speed-val">1</span>s/rot</label>
+      <span class="ctrl-val"><span id="thresh-val">-80</span> dBm</span>
+    </div>
+
+    <div class="ctrl-group">
+      <label>Speed</label>
       <input type="range" id="speed-slider" min="0.5" max="5" step="0.5" value="1" />
-      <label>History: <span id="history-val">30</span> scans</label>
+      <span class="ctrl-val"><span id="speed-val">1</span> s/rot</span>
+    </div>
+
+    <div class="ctrl-group">
+      <label>History</label>
       <input type="range" id="history-slider" min="5" max="100" step="5" value="30" />
+      <span class="ctrl-val"><span id="history-val">30</span></span>
     </div>
   </div>
 </div>
@@ -247,9 +583,21 @@ let scanSpeed   = 1000;   // ms per full rotation
 let maxHistory  = 30;
 let currentAngle = 0;
 
-// Two sets of beam layers: current scan and previous scan (fading out)
-let currLayers = new Array(DIRECTIONS).fill(null);
-let prevLayers = new Array(DIRECTIONS).fill(null);
+// Active directions: which beams to scan — persisted in localStorage
+function loadActiveDirs() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('sdr360_active_dirs'));
+    if (Array.isArray(saved) && saved.length) return new Set(saved);
+  } catch(e) {}
+  return new Set(Array.from({length: DIRECTIONS}, (_, i) => i));
+}
+function saveActiveDirs() {
+  localStorage.setItem('sdr360_active_dirs', JSON.stringify([...activeDirections]));
+}
+let activeDirections = loadActiveDirs();
+
+// Ghost selector polygons (always visible, clickable)
+const ghostLayers = [];
 
 // Signal history per direction (ring buffer)
 const signalHistory = Array.from({length: DIRECTIONS}, () => []);
@@ -310,6 +658,125 @@ function dBmToRadius(dbm) {
   return Math.max(500, BEAM_RANGE_M * Math.max(0, (dbm + 110) / 70));
 }
 
+// ─── GHOST SECTORS (direction selector) ──────────────────────────────────────
+function buildSectorPoints(bearing, radius) {
+  const halfBeam = BEAM_STEP / 2;
+  const steps = 8;
+  const pts = [[ANTENNA_LAT, ANTENNA_LNG]];
+  for (let i = 0; i <= steps; i++) {
+    const b = bearing - halfBeam + (i / steps) * BEAM_STEP;
+    pts.push(bearingToPoint(ANTENNA_LAT, ANTENNA_LNG, b, radius));
+  }
+  pts.push([ANTENNA_LAT, ANTENNA_LNG]);
+  return pts;
+}
+
+function sendActiveDirs() {
+  saveActiveDirs();
+  if (ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'config', data: { active_dirs: [...activeDirections] } }));
+}
+
+function initGhostSectors() {
+  ghostLayers.forEach(g => map.removeLayer(g));
+  ghostLayers.length = 0;
+  for (let i = 0; i < DIRECTIONS; i++) {
+    const bearing = i * BEAM_STEP;
+    const active = activeDirections.has(i);
+    const poly = L.polygon(buildSectorPoints(bearing, BEAM_RANGE_M), {
+      color:        active ? '#00ff88' : '#445566',
+      fillColor:    active ? '#00ff88' : '#001',
+      weight:       active ? 1.5 : 1,
+      opacity:      active ? 0.65 : 0.35,
+      fillOpacity:  0,
+      interactive:  true,
+      className:    'ghost-sector',
+    }).addTo(map);
+
+    poly._dirIdx = i;
+
+    poly.on('mouseover', function() {
+      this.setStyle({ fillOpacity: 0.08, opacity: 0.9 });
+      this.getElement()?.style && (this.getElement().style.cursor = 'pointer');
+    });
+    poly.on('mouseout', function() {
+      const a = activeDirections.has(this._dirIdx);
+      this.setStyle({ fillOpacity: 0, opacity: a ? 0.55 : 0.2 });
+    });
+    poly.on('click', function(e) {
+      L.DomEvent.stopPropagation(e);
+      const idx = this._dirIdx;
+      if (activeDirections.has(idx)) {
+        if (activeDirections.size > 1) activeDirections.delete(idx);
+      } else {
+        activeDirections.add(idx);
+      }
+      updateGhostSector(idx);
+      sendActiveDirs();
+    });
+
+    ghostLayers.push(poly);
+  }
+}
+
+function updateGhostSector(dirIdx) {
+  const poly = ghostLayers[dirIdx];
+  if (!poly) return;
+  const active = activeDirections.has(dirIdx);
+  poly.setStyle({
+    color:       active ? '#00ff88' : '#445566',
+    weight:      active ? 1.5 : 1,
+    opacity:     active ? 0.65 : 0.35,
+    fillOpacity: 0,
+  });
+}
+
+// ─── SMOOTH SWEEP NEEDLE ─────────────────────────────────────────────────────
+let sweepNeedle = null;
+let sweepAngleCurrent = 0;
+let sweepAnimFrame    = null;
+
+// Time-based sweep across sector
+let sweepSweepStart   = 0;    // performance.now() when sector scan began
+let sweepSweepFrom    = 0;    // left edge of current sector
+let sweepSweepTo      = 0;    // right edge of current sector
+let sweepSweepDur     = 1000; // ms to cross one sector
+
+function buildNeedlePoints(angle) {
+  const tip = bearingToPoint(ANTENNA_LAT, ANTENNA_LNG, angle, BEAM_RANGE_M * 0.98);
+  const leftEdge  = bearingToPoint(ANTENNA_LAT, ANTENNA_LNG, angle - 2, BEAM_RANGE_M * 0.3);
+  const rightEdge = bearingToPoint(ANTENNA_LAT, ANTENNA_LNG, angle + 2, BEAM_RANGE_M * 0.3);
+  return [[ANTENNA_LAT, ANTENNA_LNG], leftEdge, tip, rightEdge, [ANTENNA_LAT, ANTENNA_LNG]];
+}
+
+function initSweepNeedle() {
+  if (sweepNeedle) map.removeLayer(sweepNeedle);
+  sweepNeedle = L.polygon(buildNeedlePoints(0), {
+    color: '#00ffff', fillColor: '#00ffff',
+    weight: 1, opacity: 0.9, fillOpacity: 0.5,
+    interactive: false, pane: 'overlayPane',
+  }).addTo(map);
+}
+
+function animateSweepNeedle() {
+  sweepAnimFrame = requestAnimationFrame(animateSweepNeedle);
+
+  const elapsed = performance.now() - sweepSweepStart;
+  const t = Math.min(1, elapsed / sweepSweepDur);
+  sweepAngleCurrent = sweepSweepFrom + (sweepSweepTo - sweepSweepFrom) * t;
+
+  if (sweepNeedle) sweepNeedle.setLatLngs(buildNeedlePoints(sweepAngleCurrent));
+  sweepAngle = sweepAngleCurrent;
+}
+
+function setSweepSector(bearing) {
+  const half = BEAM_STEP / 2;
+  sweepSweepFrom  = bearing - half;
+  sweepSweepTo    = bearing + half;
+  sweepSweepDur   = scanSpeed / DIRECTIONS;
+  sweepSweepStart = performance.now();
+}
+
 // ─── MAP RENDERING ─────────────────────────────────────────────────────────
 function buildBeamPoints(dirIdx, dbm) {
   const bearing = dirIdx * BEAM_STEP;
@@ -350,9 +817,9 @@ function drawBeamOnMap(dirIdx, dbm, freqMhz, hit) {
   const hitLabel  = hit ? '' : '<br><span style="color:#888">below threshold</span>';
   const poly = L.polygon(buildBeamPoints(dirIdx, dbm), {
     color, fillColor: color,
-    weight: hit ? 1 : 0.5,
-    opacity: hit ? alpha * 1.5 : 0.3,
-    fillOpacity: alpha,
+    weight: hit ? 1.5 : 0.5,
+    opacity: hit ? alpha * 2 : 0.2,
+    fillOpacity: 0,
     interactive: true,
   })
   .bindTooltip(
@@ -395,23 +862,51 @@ function drawRadar(scanValues, sweepAngle) {
     rctx.stroke();
   });
 
-  // Signal beams
-  scanValues.forEach((dbm, i) => {
+  // Direction sectors — inactive shown as dim wedge outline
+  for (let i = 0; i < DIRECTIONS; i++) {
     const bearing = i * BEAM_STEP;
     const rad     = (bearing - 90) * Math.PI/180;
-    const t       = Math.max(0, Math.min(1, (dbm + 110) / 70));
-    const r       = (RC - 4) * t;
-    const hw      = (BEAM_STEP / 2 - 3) * Math.PI/180;
+    const hw      = (BEAM_STEP / 2 - 1) * Math.PI/180;
+    const active  = activeDirections.has(i);
 
+    if (!active) {
+      // Draw dimmed inactive sector outline
+      rctx.beginPath();
+      rctx.moveTo(RC, RC);
+      rctx.arc(RC, RC, RC - 6, rad - hw, rad + hw);
+      rctx.closePath();
+      rctx.strokeStyle = '#00ff8820';
+      rctx.lineWidth = 1;
+      rctx.globalAlpha = 0.5;
+      rctx.stroke();
+      rctx.globalAlpha = 1;
+      continue;
+    }
+
+    const dbm  = scanValues[i];
+    const t    = Math.max(0, Math.min(1, (dbm + 110) / 70));
+    const r    = (RC - 4) * t;
+    const color = dBmToColor(dbm);
+
+    // Arc line
+    rctx.beginPath();
+    rctx.arc(RC, RC, r, rad - hw, rad + hw);
+    rctx.strokeStyle = color;
+    rctx.lineWidth = 1.5;
+    rctx.globalAlpha = dBmToAlpha(dbm) * 1.5;
+    rctx.stroke();
+    // Left edge line
     rctx.beginPath();
     rctx.moveTo(RC, RC);
-    rctx.arc(RC, RC, r, rad - hw, rad + hw);
-    rctx.closePath();
-    rctx.fillStyle = dBmToColor(dbm);
-    rctx.globalAlpha = 0.7;
-    rctx.fill();
+    rctx.lineTo(RC + Math.cos(rad - hw) * r, RC + Math.sin(rad - hw) * r);
+    rctx.stroke();
+    // Right edge line
+    rctx.beginPath();
+    rctx.moveTo(RC, RC);
+    rctx.lineTo(RC + Math.cos(rad + hw) * r, RC + Math.sin(rad + hw) * r);
+    rctx.stroke();
     rctx.globalAlpha = 1;
-  });
+  }
 
   // Sweep line
   const sweepRad = (sweepAngle - 90) * Math.PI/180;
@@ -425,17 +920,6 @@ function drawRadar(scanValues, sweepAngle) {
   rctx.strokeStyle = grad;
   rctx.lineWidth = 2;
   rctx.stroke();
-
-  // Sweep trail (fade arc behind)
-  rctx.beginPath();
-  rctx.moveTo(RC,RC);
-  rctx.arc(RC,RC,RC-2, sweepRad - Math.PI/2, sweepRad, false);
-  rctx.closePath();
-  const trailGrad = rctx.createRadialGradient(RC,RC,0,RC,RC,RC-2);
-  trailGrad.addColorStop(0,'rgba(0,255,136,0.05)');
-  trailGrad.addColorStop(1,'rgba(0,255,136,0.15)');
-  rctx.fillStyle = trailGrad;
-  rctx.fill();
 
   // N label
   rctx.fillStyle = '#00ff88';
@@ -451,6 +935,309 @@ function drawRadar(scanValues, sweepAngle) {
   // Center dot
   rctx.beginPath(); rctx.arc(RC,RC,3,0,Math.PI*2);
   rctx.fillStyle = '#00ff88'; rctx.fill();
+}
+
+// ─── RADAR CLICK → TOGGLE DIRECTION ────────────────────────────────────────
+radarCanvas.style.cursor = 'pointer';
+radarCanvas.addEventListener('click', e => {
+  const rect = radarCanvas.getBoundingClientRect();
+  const scaleX = radarCanvas.width  / rect.width;
+  const scaleY = radarCanvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX - RC;
+  const y = (e.clientY - rect.top)  * scaleY - RC;
+  const dist = Math.sqrt(x*x + y*y);
+  if (dist < 8) return; // too close to center
+  // angle from north, clockwise
+  let angle = Math.atan2(x, -y) * 180 / Math.PI;
+  if (angle < 0) angle += 360;
+  const dirIdx = Math.round(angle / BEAM_STEP) % DIRECTIONS;
+  if (activeDirections.has(dirIdx)) {
+    if (activeDirections.size > 1) {
+      activeDirections.delete(dirIdx);
+      clearHitMarkers(dirIdx);
+      if (signalLayers[dirIdx]) { map.removeLayer(signalLayers[dirIdx]); signalLayers[dirIdx] = null; }
+    }
+  } else {
+    activeDirections.add(dirIdx);
+  }
+  updateGhostSector(dirIdx);
+  sendActiveDirs();
+  drawRadar(scanValues, sweepAngle);
+  updateToggleAllBtn();
+});
+
+// Toggle-all directions button
+document.getElementById('btn-toggle-all-dirs').addEventListener('click', () => {
+  if (activeDirections.size === DIRECTIONS) {
+    // all active → deselect all but keep at least 1
+    for (let i = 1; i < DIRECTIONS; i++) {
+      clearHitMarkers(i);
+      if (signalLayers[i]) { map.removeLayer(signalLayers[i]); signalLayers[i] = null; }
+    }
+    activeDirections = new Set([0]);
+  } else {
+    // not all active → select all
+    activeDirections = new Set(Array.from({length: DIRECTIONS}, (_, i) => i));
+  }
+  for (let i = 0; i < DIRECTIONS; i++) updateGhostSector(i);
+  sendActiveDirs();
+  drawRadar(scanValues, sweepAngle);
+  updateToggleAllBtn();
+});
+
+function updateToggleAllBtn() {
+  const btn = document.getElementById('btn-toggle-all-dirs');
+  if (!btn) return;
+  if (activeDirections.size === DIRECTIONS) {
+    btn.textContent = '✦ VISOS KRYPTYS';
+    btn.style.color = '#00ff8888';
+    btn.style.borderColor = '#00ff8844';
+  } else {
+    btn.textContent = '✦ PASIRINKTI VISAS';
+    btn.style.color = '#ffaa0088';
+    btn.style.borderColor = '#ffaa0044';
+  }
+}
+
+// ─── WATERFALL ──────────────────────────────────────────────────────────────
+const WF_FREQ_MIN = 100;   // MHz — full hardware range
+const WF_FREQ_MAX = 6000;  // MHz
+let wfViewMin = WF_FREQ_MIN;  // currently visible range
+let wfViewMax = WF_FREQ_MAX;
+const WF_W        = 240;   // px (matches CSS)
+const WF_ROW_H    = 3;     // px per scan row
+
+let wfCanvas  = null;
+let wfCtx     = null;
+let wfRowBuf  = null;   // Uint8ClampedArray, one row of RGBA
+let wfDirBuf  = [];     // direction color strips for current row
+let wfReady   = false;
+
+// Classic waterfall colormap: dark navy → blue → cyan → green → yellow → red
+function dbmToWfRgb(dbm) {
+  const t = Math.max(0, Math.min(1, (dbm + 110) / 80)); // 0=-110, 1=-30
+  // 5-stop gradient
+  const stops = [
+    [7,   7,  20],   // 0.0 — near black
+    [0,  40, 180],   // 0.2 — blue
+    [0, 200, 200],   // 0.5 — cyan
+    [80, 220, 0],    // 0.7 — green-yellow
+    [255,  0,  0],   // 1.0 — red
+  ];
+  const pos = t * (stops.length - 1);
+  const lo = Math.floor(pos), hi = Math.min(stops.length - 1, lo + 1);
+  const f  = pos - lo;
+  return stops[lo].map((v, i) => Math.round(v + (stops[hi][i] - v) * f));
+}
+
+function freqToWfX(freqMhz) {
+  const w = wfCanvas ? wfCanvas.width : WF_W;
+  return Math.round((freqMhz - wfViewMin) / (wfViewMax - wfViewMin) * (w - 1));
+}
+
+function initWaterfall() {
+  wfCanvas = document.getElementById('wf-canvas');
+  resizeWfCanvas();
+  wfReady = true;
+  new ResizeObserver(() => resizeWfCanvas()).observe(document.getElementById('wf-body'));
+  initWfRangeBar();
+}
+
+function resizeWfCanvas() {
+  const body = document.getElementById('wf-body');
+  if (!body || !wfCanvas) return;
+  const w = body.clientWidth  || 400;
+  const h = Math.max(80, (body.clientHeight || 280) - 14);
+  // Preserve existing image
+  const tmp = document.createElement('canvas');
+  tmp.width = wfCanvas.width || w; tmp.height = wfCanvas.height || h;
+  if (wfCtx) tmp.getContext('2d').drawImage(wfCanvas, 0, 0);
+  wfCanvas.width  = w;
+  wfCanvas.height = h;
+  wfCtx = wfCanvas.getContext('2d');
+  wfCtx.fillStyle = '#07070f';
+  wfCtx.fillRect(0, 0, w, h);
+  wfCtx.drawImage(tmp, 0, 0, w, h);
+  wfRowBuf = new Uint8ClampedArray(w * WF_ROW_H * 4);
+  wfRowBuf.fill(7);
+  drawWfAxis();
+}
+
+function drawWfAxis() {
+  const ac = document.getElementById('wf-axis-canvas');
+  if (!ac) return;
+  const w = wfCanvas ? wfCanvas.width : WF_W;
+  ac.width = w;
+  const ax = ac.getContext('2d');
+  ax.fillStyle = '#07070f';
+  ax.fillRect(0, 0, w, 14);
+  ax.fillStyle = '#00ff8866';
+  ax.font = '8px monospace';
+  // Dynamic tick spacing based on current view range
+  const span = wfViewMax - wfViewMin;
+  const tickIntervals = [50, 100, 200, 500, 1000];
+  const targetTicks = 8;
+  let interval = tickIntervals.find(t => span / t <= targetTicks) || 1000;
+  const firstTick = Math.ceil(wfViewMin / interval) * interval;
+  for (let f = firstTick; f <= wfViewMax; f += interval) {
+    const x = freqToWfX(f);
+    if (x < 0 || x > w) continue;
+    ax.textAlign = 'center';
+    ax.fillRect(x, 0, 1, 4);
+    ax.fillText(f >= 1000 ? (f/1000).toFixed(f%1000===0?0:1)+'G' : f+'M', x, 13);
+  }
+}
+
+// ─── WATERFALL RANGE SELECTOR ────────────────────────────────────────────────
+let wfRangeCanvas = null, wfRangeCtx = null;
+let wfDragHandle  = null; // 'min' | 'max' | 'band'
+let wfDragStartX  = 0, wfDragStartMin = 0, wfDragStartMax = 0;
+
+function freqToRangeX(freq) {
+  if (!wfRangeCanvas) return 0;
+  return (freq - WF_FREQ_MIN) / (WF_FREQ_MAX - WF_FREQ_MIN) * wfRangeCanvas.width;
+}
+function rangeXToFreq(x) {
+  if (!wfRangeCanvas) return WF_FREQ_MIN;
+  return WF_FREQ_MIN + (x / wfRangeCanvas.width) * (WF_FREQ_MAX - WF_FREQ_MIN);
+}
+
+function drawWfRangeBar() {
+  if (!wfRangeCtx || !wfRangeCanvas) return;
+  const w = wfRangeCanvas.width, h = 22;
+  wfRangeCtx.clearRect(0, 0, w, h);
+  wfRangeCtx.fillStyle = '#040410';
+  wfRangeCtx.fillRect(0, 0, w, h);
+
+  // Full range tick marks
+  wfRangeCtx.fillStyle = '#00ff8820';
+  [500,1000,2000,3000,4000,5000].forEach(f => {
+    const x = freqToRangeX(f);
+    wfRangeCtx.fillRect(x, h-6, 1, 6);
+  });
+
+  // Selected zone
+  const x1 = freqToRangeX(wfViewMin), x2 = freqToRangeX(wfViewMax);
+  wfRangeCtx.fillStyle = '#00ff8818';
+  wfRangeCtx.fillRect(x1, 0, x2-x1, h);
+  wfRangeCtx.strokeStyle = '#00ff8866';
+  wfRangeCtx.lineWidth = 1;
+  wfRangeCtx.strokeRect(x1+0.5, 0.5, x2-x1-1, h-1);
+
+  // Handles
+  const handleW = 5;
+  [[x1, wfViewMin], [x2, wfViewMax]].forEach(([x, freq]) => {
+    wfRangeCtx.fillStyle = '#00ff88';
+    wfRangeCtx.fillRect(x - Math.floor(handleW/2), 0, handleW, h);
+    // Freq label
+    wfRangeCtx.fillStyle = '#00ff88';
+    wfRangeCtx.font = 'bold 9px monospace';
+    const lbl = freq >= 1000 ? (freq/1000).toFixed(2).replace(/\.?0+$/,'')+'G' : Math.round(freq)+'M';
+    const isLeft = x < w/2;
+    wfRangeCtx.textAlign = isLeft ? 'left' : 'right';
+    wfRangeCtx.fillText(lbl, isLeft ? x + handleW + 2 : x - handleW - 2, 13);
+  });
+}
+
+function initWfRangeBar() {
+  wfRangeCanvas = document.getElementById('wf-range-canvas');
+  if (!wfRangeCanvas) return;
+  wfRangeCtx = wfRangeCanvas.getContext('2d');
+  const sizeBar = () => {
+    wfRangeCanvas.width = wfRangeCanvas.parentElement.clientWidth || 400;
+    drawWfRangeBar();
+  };
+  new ResizeObserver(sizeBar).observe(wfRangeCanvas.parentElement);
+  sizeBar();
+
+  let dragBandFreqOffset = 0;
+  wfRangeCanvas.addEventListener('mousedown', e => {
+    const rect = wfRangeCanvas.getBoundingClientRect();
+    const x    = (e.clientX - rect.left) * (wfRangeCanvas.width / rect.width);
+    const xMin = freqToRangeX(wfViewMin), xMax = freqToRangeX(wfViewMax);
+    const hitMin = Math.abs(x - xMin) < 10;
+    const hitMax = Math.abs(x - xMax) < 10;
+    wfDragStartX   = e.clientX;
+    wfDragStartMin = wfViewMin;
+    wfDragStartMax = wfViewMax;
+    if (hitMin && !hitMax)       wfDragHandle = 'min';
+    else if (hitMax && !hitMin)  wfDragHandle = 'max';
+    else if (x > xMin && x < xMax) {
+      wfDragHandle = 'band';
+      dragBandFreqOffset = rangeXToFreq(x) - wfViewMin;
+    }
+    e.preventDefault();
+    wfRangeCanvas._dragBandOffset = dragBandFreqOffset;
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!wfDragHandle) return;
+    const rect  = wfRangeCanvas.getBoundingClientRect();
+    const dx    = e.clientX - wfDragStartX;
+    const dFreq = dx / rect.width * (WF_FREQ_MAX - WF_FREQ_MIN);
+
+    if (wfDragHandle === 'min') {
+      wfViewMin = Math.max(WF_FREQ_MIN, Math.min(wfDragStartMin + dFreq, wfViewMax - 10));
+    } else if (wfDragHandle === 'max') {
+      wfViewMax = Math.min(WF_FREQ_MAX, Math.max(wfDragStartMax + dFreq, wfViewMin + 10));
+    } else if (wfDragHandle === 'band') {
+      const newMin = Math.max(WF_FREQ_MIN, wfDragStartMin + dFreq);
+      const span   = wfDragStartMax - wfDragStartMin;
+      const newMax = newMin + span;
+      if (newMax <= WF_FREQ_MAX) { wfViewMin = newMin; wfViewMax = newMax; }
+    }
+    drawWfRangeBar();
+    drawWfAxis();
+    // Reset row buffer width
+    if (wfCanvas && wfRowBuf) {
+      wfRowBuf = new Uint8ClampedArray(wfCanvas.width * WF_ROW_H * 4);
+      wfRowBuf.fill(7);
+    }
+  });
+  document.addEventListener('mouseup', () => {
+    if (wfDragHandle) {
+      wfDragHandle = null;
+      sendFreqRange();
+      if (window._saveWfState) window._saveWfState();
+    }
+  });
+}
+
+function sendFreqRange() {
+  const fmin = Math.round(wfViewMin);
+  const fmax = Math.round(wfViewMax);
+  if (ws && ws.readyState === WebSocket.OPEN)
+    ws.send(JSON.stringify({ type: 'config', data: { freq_min: fmin, freq_max: fmax } }));
+  // Update sweep stat label
+  document.getElementById('stat-sweep').textContent = `${fmin}–${fmax} MHz`;
+}
+
+function wfPaintPoint(freqMhz, dbm) {
+  if (!wfReady || !wfCanvas) return;
+  const w = wfCanvas.width;
+  const x = freqToWfX(freqMhz);
+  if (x < 0 || x >= w) return;
+  const [r, g, b] = dbmToWfRgb(dbm);
+  for (let row = 0; row < WF_ROW_H; row++) {
+    const idx = (row * w + x) * 4;
+    wfRowBuf[idx]   = r;
+    wfRowBuf[idx+1] = g;
+    wfRowBuf[idx+2] = b;
+    wfRowBuf[idx+3] = 255;
+  }
+  document.getElementById('wf-cur-freq').textContent = freqMhz.toFixed(1) + ' MHz';
+}
+
+function wfCommitRow(dirIdx) {
+  if (!wfReady || !wfCtx || !wfCanvas) return;
+  const W = wfCanvas.width, H = wfCanvas.height;
+  wfCtx.drawImage(wfCanvas, 0, -WF_ROW_H);
+  const imgData = new ImageData(wfRowBuf.slice(), W, WF_ROW_H);
+  wfCtx.putImageData(imgData, 0, H - WF_ROW_H);
+  const hue = (dirIdx / DIRECTIONS) * 300;
+  wfCtx.fillStyle = `hsl(${hue},100%,60%)`;
+  wfCtx.fillRect(0, H - WF_ROW_H, 2, WF_ROW_H);
+  wfRowBuf.fill(7);
 }
 
 // ─── SIGNAL BARS UI ────────────────────────────────────────────────────────
@@ -500,24 +1287,15 @@ function processScanStep(dirIdx, dbm, freqMhz, hit, peaks) {
   signalHistory[dirIdx].push(dbm);
   if (signalHistory[dirIdx].length > maxHistory) signalHistory[dirIdx].shift();
 
-  // Fade out previous scan's beam for this direction
-  if (prevLayers[dirIdx]) {
-    fadeOutAndRemove(prevLayers[dirIdx], scanSpeed * 0.8);
-    prevLayers[dirIdx] = null;
-  }
-  if (currLayers[dirIdx]) map.removeLayer(currLayers[dirIdx]);
-
   const isHit = dbm >= THRESHOLD;
-  currLayers[dirIdx] = drawBeamOnMap(dirIdx, dbm, freqMhz, isHit);
+  updateSignalLayer(dirIdx, dbm);
+  wfCommitRow(dirIdx);
   placeHitMarkers(dirIdx, isHit ? (peaks || []) : []);
 
   drawRadar(scanValues, sweepAngle);
   updateBars(scanValues);
 
   if ((dirIdx + 1) % DIRECTIONS === 0) {
-    prevLayers = [...currLayers];
-    currLayers = new Array(DIRECTIONS).fill(null);
-
     scanCount++;
     document.getElementById('stat-scan').textContent = scanCount;
     const peakIdx = scanValues.indexOf(Math.max(...scanValues));
@@ -609,14 +1387,17 @@ function placeHitMarkers(dirIdx, peaks) {
   // Sort peaks by frequency so they fan out in freq order left→right across beam
   const sorted = [...peaks].sort((a, b) => a.freq_mhz - b.freq_mhz);
 
-  sorted.forEach((peak, i) => {
-    // Radial distance: strong signal → close (20%), weak → far (90%)
-    const MIN_DBM = -110, MAX_DBM = -20;
-    const norm    = Math.max(0, Math.min(1, (peak.dbm - MIN_DBM) / (MAX_DBM - MIN_DBM)));
-    const frac    = 0.9 - norm * 0.7;   // strong=0.2 … weak=0.9
-    const radius  = BEAM_RANGE_M * frac;
+  // Relative positioning: strongest in this scan → closest, weakest → farthest
+  const dbmMin = Math.min(...sorted.map(p => p.dbm));
+  const dbmMax = Math.max(...sorted.map(p => p.dbm));
+  const dbmRange = dbmMax - dbmMin || 1;
 
-    // Fan across beam width: spread evenly within ±(halfBeam * 0.6)
+  sorted.forEach((peak, i) => {
+    const norm   = (peak.dbm - dbmMin) / dbmRange; // 0=weakest, 1=strongest
+    const frac   = 0.9 - norm * 0.8;               // strongest=0.10, weakest=0.90
+    const radius = BEAM_RANGE_M * frac;
+
+    // Fan across beam width
     const spread  = halfBeam * 0.65;
     const offset  = n === 1 ? 0 : -spread + (i / (n - 1)) * spread * 2;
     const b       = bearing + offset;
@@ -626,18 +1407,20 @@ function placeHitMarkers(dirIdx, peaks) {
 
     const icon = L.divIcon({
       className: '',
-      html: `<div style="position:relative;width:0;height:0;">
+      html: `<div class="hm-wrap" data-color="${color}" style="
+          position:relative;width:0;height:0;cursor:pointer;
+        ">
         <div class="hm-dot" data-color="${color}" style="
           width:${dotSize}px;height:${dotSize}px;border-radius:50%;
           background:${color};border:2px solid #fff;
           box-shadow:0 0 10px ${color};
           position:absolute;
           top:${-dotSize/2}px;left:${-dotSize/2}px;
-          cursor:pointer;
           transition:transform 0.15s ease, box-shadow 0.15s ease;
           z-index:10;
+          pointer-events:none;
         "></div>
-        <div class="hit-label" style="top:${dotSize/2 + 3}px; pointer-events:none;">
+        <div class="hit-label" style="top:${dotSize/2 + 3}px;">
           ${peak.freq_mhz} MHz<br>${peak.dbm} dBm
         </div>
       </div>`,
@@ -647,7 +1430,17 @@ function placeHitMarkers(dirIdx, peaks) {
     const m = L.marker(pos, { icon, interactive: true, zIndexOffset: 1000 })
       .addTo(map);
 
-    // Hover: scale up dot
+    m._peak = peak;
+
+    // Auto-tag if freq matches a saved label
+    const matchedLabel = matchLabel(peak.freq_mhz);
+    if (matchedLabel) {
+      requestAnimationFrame(() => {
+        const el = m.getElement();
+        if (el) addTagToMarkerEl(el, matchedLabel);
+      });
+    }
+
     m.on('mouseover', function() {
       const el = this.getElement();
       if (el) el.querySelector('.hm-dot').style.transform = 'scale(1.6)';
@@ -657,16 +1450,29 @@ function placeHitMarkers(dirIdx, peaks) {
       if (el) el.querySelector('.hm-dot').style.transform = 'scale(1)';
     });
 
-    // Click: focus + mark selected, stop propagation
     m.on('click', function(e) {
       L.DomEvent.stopPropagation(e);
-      // Clear previous selection ring
+      const dot = this.getElement()?.querySelector('.hm-dot');
+
+      if (labelMode) {
+        const idx = selectedPeaks.findIndex(p => p._marker === this);
+        if (idx >= 0) {
+          selectedPeaks.splice(idx, 1);
+          if (dot) dot.classList.remove('in-selection');
+        } else {
+          selectedPeaks.push({ freq_mhz: peak.freq_mhz, dbm: peak.dbm, _marker: this });
+          if (dot) dot.classList.add('in-selection');
+        }
+        updateSelBar();
+        return;
+      }
+
+      // Normal mode
       document.querySelectorAll('.hm-dot.selected').forEach(d => {
         d.classList.remove('selected');
-        d.style.boxShadow = `0 0 10px ${d.dataset.color}`;
+        d.style.boxShadow  = `0 0 10px ${d.dataset.color}`;
         d.style.borderColor = '#fff';
       });
-      const dot = this.getElement()?.querySelector('.hm-dot');
       if (dot) {
         dot.classList.add('selected');
         dot.style.borderColor = '#ffaa00';
@@ -677,6 +1483,28 @@ function placeHitMarkers(dirIdx, peaks) {
 
     hitMarkers[dirIdx].push(m);
   });
+}
+
+// ─── SIGNAL STRENGTH FILL INSIDE SECTORS ────────────────────────────────────
+let signalLayers = new Array(DIRECTIONS).fill(null);
+
+function updateSignalLayer(dirIdx, dbm) {
+  if (signalLayers[dirIdx]) {
+    map.removeLayer(signalLayers[dirIdx]);
+    signalLayers[dirIdx] = null;
+  }
+  if (!activeDirections.has(dirIdx)) return;
+  const color = dBmToColor(dbm);
+  const alpha = dBmToAlpha(dbm);
+  signalLayers[dirIdx] = L.polygon(buildBeamPoints(dirIdx, dbm), {
+    color,
+    fillColor: color,
+    weight: 1,
+    opacity: alpha * 1.4,
+    fillOpacity: alpha * 0.55,
+    interactive: false,
+    pane: 'overlayPane',
+  }).addTo(map);
 }
 
 // ─── SCANNING BEAM (progress animation) ─────────────────────────────────────
@@ -697,44 +1525,14 @@ function buildSweepPoints(dirIdx, radiusFraction) {
 }
 
 function handleScanStart(msg) {
+  setSweepSector(msg.bearing);
+  // Remove old scanning layer — no background beam drawn
   const i = msg.dirIdx;
-  // Remove any existing scanning layer for this direction
-  if (scanningLayers[i]) { map.removeLayer(scanningLayers[i]); }
-
-  // Draw an outline-only beam at full size — shows the scanning target area
-  scanningLayers[i] = L.polygon(buildSweepPoints(i, 1.0), {
-    color: '#00aaff', fillColor: '#00aaff',
-    weight: 1.5, opacity: 0.5, fillOpacity: 0.05,
-    dashArray: '4 4', interactive: false,
-  }).addTo(map);
+  if (scanningLayers[i]) { map.removeLayer(scanningLayers[i]); scanningLayers[i] = null; }
 }
 
 function handleScanProgress(msg) {
-  const i    = msg.dirIdx;
-  const prog = msg.progress;           // 0.0 → 1.0
-
-  // Update the scanning layer: filled portion grows with progress
-  if (scanningLayers[i]) {
-    scanningLayers[i].setLatLngs(buildSweepPoints(i, prog));
-
-    // Color: blue (scanning) → yellow (hit) based on whether we see a signal
-    const isHit   = msg.hit;
-    const color   = isHit ? '#ffcc00' : '#00aaff';
-    const fillOp  = isHit ? 0.25 : 0.12;
-    scanningLayers[i].setStyle({
-      color, fillColor: color, fillOpacity: fillOp, opacity: 0.7,
-      dashArray: null,
-    });
-
-    // Show tooltip with current frequency + peak so far
-    const peakStr = msg.peak_dbm > THRESHOLD
-      ? `Peak: ${msg.peak_dbm.toFixed(1)} dBm @ ${msg.peak_freq.toFixed(1)} MHz`
-      : 'Scanning…';
-    scanningLayers[i].bindTooltip(
-      `${DIR_NAMES[i]}<br>${msg.cur_freq.toFixed(1)} MHz<br>${peakStr}`,
-      { sticky: true, permanent: false, className: 'beam-tip' }
-    );
-  }
+  wfPaintPoint(msg.cur_freq, msg.cur_dbm);
 }
 
 // ─── WEBSOCKET CLIENT ───────────────────────────────────────────────────────
@@ -843,7 +1641,7 @@ function startScanning() {
 // ─── CONTROLS ──────────────────────────────────────────────────────────────
 document.getElementById('btn-pause').addEventListener('click', function() {
   paused = !paused;
-  this.textContent = paused ? '▶ RESUME' : '⏸ PAUSE';
+  this.textContent = paused ? '▶ START' : '⏹ STOP';
   this.classList.toggle('active', paused);
   document.getElementById('status').textContent = paused ? 'PAUSED' : 'Scanning...';
   if (wsActive && ws && ws.readyState === WebSocket.OPEN) {
@@ -852,12 +1650,11 @@ document.getElementById('btn-pause').addEventListener('click', function() {
 });
 
 document.getElementById('btn-clear').addEventListener('click', () => {
-  [...currLayers, ...prevLayers, ...scanningLayers]
-    .forEach(l => l && map.removeLayer(l));
+  scanningLayers.forEach(l => l && map.removeLayer(l));
+  signalLayers.forEach(l => l && map.removeLayer(l));
   for (let i = 0; i < DIRECTIONS; i++) clearHitMarkers(i);
-  currLayers     = new Array(DIRECTIONS).fill(null);
-  prevLayers     = new Array(DIRECTIONS).fill(null);
   scanningLayers = new Array(DIRECTIONS).fill(null);
+  signalLayers   = new Array(DIRECTIONS).fill(null);
   scanValues     = new Array(DIRECTIONS).fill(-110);
   drawRadar(scanValues, sweepAngle);
   updateBars(scanValues);
@@ -937,6 +1734,95 @@ document.getElementById('history-slider').addEventListener('input', function() {
   document.getElementById('history-val').textContent = this.value;
 });
 
+// ─── WATERFALL WINDOW CONTROLS ───────────────────────────────────────────────
+(function() {
+  const panel = document.getElementById('wf-panel');
+  const titlebar = document.getElementById('wf-titlebar');
+  const resizeHandle = document.getElementById('wf-resize-handle');
+
+  // ── Persist / restore state ──
+  function saveWfState() {
+    localStorage.setItem('sdr360_wf', JSON.stringify({
+      open:    panel.style.display === 'flex',
+      top:     panel.style.top,
+      left:    panel.style.left,
+      width:   panel.style.width,
+      height:  panel.style.height,
+      viewMin: wfViewMin,
+      viewMax: wfViewMax,
+    }));
+  }
+  window._saveWfState = saveWfState;
+  function restoreWfState() {
+    try {
+      const s = JSON.parse(localStorage.getItem('sdr360_wf'));
+      if (!s) return;
+      if (s.top)    panel.style.top    = s.top;
+      if (s.left)   panel.style.left   = s.left;
+      if (s.width)  panel.style.width  = s.width;
+      if (s.height) panel.style.height = s.height;
+      if (s.viewMin != null) wfViewMin = s.viewMin;
+      if (s.viewMax != null) wfViewMax = s.viewMax;
+      if (s.open) {
+        panel.style.display = 'flex';
+        if (!wfReady) initWaterfall();
+        else resizeWfCanvas();
+      }
+    } catch(e) {}
+  }
+
+  // Toggle open/close
+  document.getElementById('btn-hdr-waterfall').addEventListener('click', () => {
+    const open = panel.style.display !== 'flex';
+    panel.style.display = open ? 'flex' : 'none';
+    if (open && !wfReady) initWaterfall();
+    if (open) resizeWfCanvas();
+    saveWfState();
+  });
+  document.getElementById('btn-wf-close').addEventListener('click', () => {
+    panel.style.display = 'none';
+    saveWfState();
+  });
+
+  // Drag via titlebar
+  let dragX = 0, dragY = 0, dragging = false;
+  titlebar.addEventListener('mousedown', e => {
+    if (e.target === document.getElementById('btn-wf-close')) return;
+    dragging = true;
+    dragX = e.clientX - panel.offsetLeft;
+    dragY = e.clientY - panel.offsetTop;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    panel.style.left = Math.max(0, e.clientX - dragX) + 'px';
+    panel.style.top  = Math.max(0, e.clientY - dragY) + 'px';
+  });
+  document.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; saveWfState(); }
+  });
+
+  // Resize via bottom-right handle
+  let resizing = false, resX = 0, resY = 0, resW = 0, resH = 0;
+  resizeHandle.addEventListener('mousedown', e => {
+    resizing = true;
+    resX = e.clientX; resY = e.clientY;
+    resW = panel.offsetWidth; resH = panel.offsetHeight;
+    e.preventDefault(); e.stopPropagation();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!resizing) return;
+    panel.style.width  = Math.max(240, resW + (e.clientX - resX)) + 'px';
+    panel.style.height = Math.max(160, resH + (e.clientY - resY)) + 'px';
+    resizeWfCanvas();
+  });
+  document.addEventListener('mouseup', () => {
+    if (resizing) { resizing = false; saveWfState(); }
+  });
+
+  restoreWfState();
+})();
+
 // ─── INIT ──────────────────────────────────────────────────────────────────
 buildBars();
 drawRadar(scanValues, 0);
@@ -954,20 +1840,543 @@ function applyLocation(lat, lng) {
   document.getElementById('stat-lat').textContent = lat.toFixed(4);
   document.getElementById('stat-lng').textContent = lng.toFixed(4);
   document.getElementById('status').textContent = 'Scanning...';
+  hideCoordInput();
+  initGhostSectors();
+  initSweepNeedle();
+  if (!sweepAnimFrame) animateSweepNeedle();
 }
+
+// ─── COORDINATE INPUT ────────────────────────────────────────────────────────
+function showCoordInput() {
+  const row = document.getElementById('coord-input-row');
+  row.style.display = 'flex';
+  document.getElementById('input-lat').value = ANTENNA_LAT.toFixed(5);
+  document.getElementById('input-lng').value = ANTENNA_LNG.toFixed(5);
+  document.getElementById('input-lat').focus();
+  document.getElementById('input-lat').select();
+}
+function hideCoordInput() {
+  document.getElementById('coord-input-row').style.display = 'none';
+}
+
+document.getElementById('stat-lat').addEventListener('click', showCoordInput);
+document.getElementById('stat-lng').addEventListener('click', showCoordInput);
+
+document.getElementById('btn-apply-coords').addEventListener('click', () => {
+  const lat = parseFloat(document.getElementById('input-lat').value);
+  const lng = parseFloat(document.getElementById('input-lng').value);
+  if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+    applyLocation(lat, lng);
+  }
+});
+document.getElementById('btn-cancel-coords').addEventListener('click', hideCoordInput);
+document.getElementById('input-lng').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-apply-coords').click();
+  if (e.key === 'Escape') hideCoordInput();
+});
+document.getElementById('input-lat').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('input-lng').focus();
+  if (e.key === 'Escape') hideCoordInput();
+});
+
+// ─── RIGHT-CLICK "I am here" ─────────────────────────────────────────────────
+const ctxMenu = document.createElement('div');
+ctxMenu.id = 'map-ctx-menu';
+ctxMenu.style.cssText = `
+  position:fixed;display:none;z-index:9999;
+  background:#111118;border:1px solid #00ff8844;border-radius:6px;
+  box-shadow:0 4px 20px #000a;overflow:hidden;min-width:160px;
+`;
+ctxMenu.innerHTML = `
+  <div id="ctx-set-here" style="
+    padding:8px 14px;font-size:12px;font-family:monospace;color:#00ff88;
+    cursor:pointer;display:flex;align-items:center;gap:8px;
+  ">📍 Antena yra čia</div>
+  <div id="ctx-coords-label" style="
+    padding:4px 14px 8px;font-size:10px;color:#555;font-family:monospace;
+  "></div>
+`;
+document.body.appendChild(ctxMenu);
+
+let ctxLatLng = null;
+
+ctxMenu.querySelector('#ctx-set-here').addEventListener('mouseenter', function() {
+  this.style.background = '#1a2a1a';
+});
+ctxMenu.querySelector('#ctx-set-here').addEventListener('mouseleave', function() {
+  this.style.background = 'transparent';
+});
+ctxMenu.querySelector('#ctx-set-here').addEventListener('click', () => {
+  if (ctxLatLng) applyLocation(ctxLatLng.lat, ctxLatLng.lng);
+  ctxMenu.style.display = 'none';
+});
+
+map.on('contextmenu', e => {
+  L.DomEvent.preventDefault(e.originalEvent);
+  ctxLatLng = e.latlng;
+  ctxMenu.querySelector('#ctx-coords-label').textContent =
+    `${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+  ctxMenu.style.left = e.originalEvent.clientX + 'px';
+  ctxMenu.style.top  = e.originalEvent.clientY + 'px';
+  ctxMenu.style.display = 'block';
+});
+
+document.addEventListener('click',   () => { ctxMenu.style.display = 'none'; });
+document.addEventListener('keydown',  e => { if (e.key === 'Escape') ctxMenu.style.display = 'none'; });
 
 if ('geolocation' in navigator) {
   navigator.geolocation.getCurrentPosition(
     pos => applyLocation(pos.coords.latitude, pos.coords.longitude),
     err => {
       console.warn('Geolocation failed:', err.message);
-      document.getElementById('status').textContent = 'Location denied — using default';
+      applyLocation(ANTENNA_LAT, ANTENNA_LNG); // use default
     },
     { enableHighAccuracy: true, timeout: 8000 }
   );
 } else {
-  document.getElementById('status').textContent = 'Scanning (no geolocation)';
+  applyLocation(ANTENNA_LAT, ANTENNA_LNG);
 }
+
+// ─── SIGNAL LABELS ───────────────────────────────────────────────────────────
+const LABEL_COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6fc8','#ff9f43','#00d2d3','#a29bfe'];
+let signalLabels = JSON.parse(localStorage.getItem('sdr360_labels') || '[]');
+let labelMode    = false;
+let selectedPeaks = [];   // { freq_mhz, dbm, markerEl }
+
+function saveLabels() {
+  localStorage.setItem('sdr360_labels', JSON.stringify(signalLabels));
+  refreshLabelsDropdown();
+}
+
+// hidden labels set — ID-based
+let hiddenLabels  = new Set();
+let activeScanLbl = null; // currently scanned label ID (null = wide)
+
+function refreshLabelsDropdown() {
+  // badge count
+  const badge = document.getElementById('lp-count-badge');
+  if (badge) badge.textContent = signalLabels.length ? `(${signalLabels.length})` : '';
+  renderLabelsPanel();
+}
+
+function applyLabelVisibility() {
+  hitMarkers.forEach(arr => arr.forEach(m => {
+    if (!m._peak) return;
+    const lbl = matchLabel(m._peak.freq_mhz);
+    const hide = lbl ? hiddenLabels.has(lbl.id) : false;
+    const el = m.getElement();
+    if (el) el.style.display = hide ? 'none' : '';
+  }));
+}
+
+function scanLabel(lbl) {
+  activeScanLbl = lbl ? lbl.id : null;
+  if (lbl) {
+    FREQ_MIN = lbl.freqMin; FREQ_MAX = lbl.freqMax;
+    sendConfig({ freq_min: lbl.freqMin, freq_max: lbl.freqMax });
+    document.getElementById('stat-sweep').textContent = `${lbl.freqMin}–${lbl.freqMax} MHz 🔍`;
+    document.getElementById('stat-sweep').style.color = lbl.color;
+    document.getElementById('btn-wide').style.display = '';
+  } else {
+    wideMode();
+  }
+  renderLabelsPanel();
+}
+
+function renderLabelsPanel() {
+  const list = document.getElementById('lp-list');
+  if (!list) return;
+
+  if (signalLabels.length === 0) {
+    list.innerHTML = '<div style="padding:14px 12px;text-align:center;font-size:10px;color:#444;font-family:monospace;">Nėra labelių — sukurkite per 📋 Labels</div>';
+    return;
+  }
+
+  list.innerHTML = signalLabels.map(lbl => {
+    const on      = !hiddenLabels.has(lbl.id);
+    const isActive = activeScanLbl === lbl.id;
+    return `<div class="lp-row" data-id="${lbl.id}">
+      <button class="lp-toggle ${on?'on':'off'}" data-id="${lbl.id}" title="${on?'Slėpti':'Rodyti'}"></button>
+      <span class="lp-name" data-id="${lbl.id}" style="color:${on?'#ddd':'#555'}">${lbl.name}</span>
+      <span class="lp-freq">${lbl.freqMin}–${lbl.freqMax}</span>
+      <button class="lp-scan-btn ${isActive?'active':''}" data-id="${lbl.id}">${isActive?'⏹ Stop':'▶ Scan'}</button>
+    </div>`;
+  }).join('');
+
+  // Toggle visibility
+  list.querySelectorAll('.lp-toggle').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      hiddenLabels.has(id) ? hiddenLabels.delete(id) : hiddenLabels.add(id);
+      applyLabelVisibility();
+      renderLabelsPanel();
+    });
+  });
+
+  // Name click → scan that label
+  list.querySelectorAll('.lp-name').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const lbl = signalLabels.find(l => l.id === el.dataset.id);
+      scanLabel(activeScanLbl === el.dataset.id ? null : lbl);
+    });
+  });
+
+  // Scan button
+  list.querySelectorAll('.lp-scan-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const lbl = signalLabels.find(l => l.id === btn.dataset.id);
+      scanLabel(activeScanLbl === btn.dataset.id ? null : lbl);
+    });
+  });
+}
+
+function matchLabel(freq_mhz) {
+  return signalLabels.find(l => freq_mhz >= l.freqMin && freq_mhz <= l.freqMax) || null;
+}
+
+// Rebuild all existing marker tags (call after label saved/deleted)
+function retagAllMarkers() {
+  document.querySelectorAll('.sig-tag').forEach(t => t.remove());
+  hitMarkers.forEach(arr => arr.forEach(m => {
+    const el = m.getElement();
+    if (!el || !m._peak) return;
+    const lbl = matchLabel(m._peak.freq_mhz);
+    if (lbl) addTagToMarkerEl(el, lbl);
+  }));
+  applyLabelVisibility();
+}
+
+function addTagToMarkerEl(el, lbl) {
+  const existing = el.querySelector('.sig-tag');
+  if (existing) existing.remove();
+  const tag = document.createElement('div');
+  tag.className = 'sig-tag';
+  tag.textContent = lbl.name;
+  tag.style.background = lbl.color + '33';
+  tag.style.color = lbl.color;
+  tag.style.border = `1px solid ${lbl.color}88`;
+  const hitLbl = el.querySelector('.hit-label');
+  if (hitLbl) hitLbl.appendChild(tag);
+}
+
+// ── Label mode toggle ───────────────────────────────────────────────────────
+document.getElementById('btn-hdr-label-mode').addEventListener('click', function() {
+  labelMode = !labelMode;
+  this.classList.toggle('active', labelMode);
+  this.textContent = labelMode ? '✕ Išeiti' : '🏷 Label';
+  if (!labelMode) clearSelection();
+});
+
+function clearSelection() {
+  selectedPeaks = [];
+  document.querySelectorAll('.hm-dot.in-selection').forEach(d => d.classList.remove('in-selection'));
+  document.getElementById('label-sel-bar').classList.remove('open');
+}
+
+function updateSelBar() {
+  const bar = document.getElementById('label-sel-bar');
+  if (selectedPeaks.length === 0) { bar.classList.remove('open'); return; }
+  bar.classList.add('open');
+  document.getElementById('label-sel-count').textContent = `${selectedPeaks.length} pasirinkta`;
+}
+
+// ── Label creation modal ────────────────────────────────────────────────────
+let pickedColor = LABEL_COLORS[0];
+
+function openLabelModal() {
+  if (selectedPeaks.length === 0) return;
+  const freqs = selectedPeaks.map(p => p.freq_mhz);
+  const fMin = Math.min(...freqs), fMax = Math.max(...freqs);
+  const pad  = Math.max(5, (fMax - fMin) * 0.1);
+  const rangeMin = Math.max(1,    Math.round(fMin - pad));
+  const rangeMax = Math.min(6000, Math.round(fMax + pad));
+
+  document.getElementById('label-freq-range').textContent =
+    `Dažnis: ${rangeMin}–${rangeMax} MHz (${selectedPeaks.length} taškai)`;
+  document.getElementById('label-freq-range').dataset.min = rangeMin;
+  document.getElementById('label-freq-range').dataset.max = rangeMax;
+  document.getElementById('label-name-input').value = '';
+
+  // Color picker
+  const cp = document.getElementById('label-modal-colors');
+  cp.innerHTML = LABEL_COLORS.map((c, i) =>
+    `<div class="lbl-color-btn${i===0?' active':''}" data-color="${c}"
+      style="background:${c}" title="${c}"></div>`
+  ).join('');
+  pickedColor = LABEL_COLORS[0];
+  cp.querySelectorAll('.lbl-color-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      cp.querySelectorAll('.lbl-color-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      pickedColor = this.dataset.color;
+    });
+  });
+
+  document.getElementById('label-modal').classList.add('open');
+  setTimeout(() => document.getElementById('label-name-input').focus(), 50);
+}
+
+document.getElementById('btn-label-create').addEventListener('click', openLabelModal);
+document.getElementById('btn-label-cancel').addEventListener('click', () => {
+  document.getElementById('label-modal').classList.remove('open');
+});
+document.getElementById('btn-label-sel-clear').addEventListener('click', clearSelection);
+
+document.getElementById('btn-label-save').addEventListener('click', () => {
+  const name = document.getElementById('label-name-input').value.trim();
+  if (!name) { document.getElementById('label-name-input').focus(); return; }
+  const rangeEl = document.getElementById('label-freq-range');
+  const lbl = {
+    id: Date.now().toString(36),
+    name,
+    freqMin: parseFloat(rangeEl.dataset.min),
+    freqMax: parseFloat(rangeEl.dataset.max),
+    color: pickedColor,
+    createdAt: Date.now(),
+  };
+  signalLabels.push(lbl);
+  saveLabels();
+  retagAllMarkers();
+  document.getElementById('label-modal').classList.remove('open');
+  clearSelection();
+  labelMode = false;
+  document.getElementById('btn-hdr-label-mode').classList.remove('active');
+  document.getElementById('btn-hdr-label-mode').textContent = '🏷 Label';
+});
+
+document.getElementById('label-name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-label-save').click();
+  if (e.key === 'Escape') document.getElementById('label-modal').classList.remove('open');
+});
+
+/// ── Labels panel button ───────────────────────────────────────────────────
+const labelsPanel = document.getElementById('labels-panel');
+
+document.getElementById('btn-hdr-labels-panel').addEventListener('click', function(e) {
+  e.stopPropagation();
+  const open = labelsPanel.classList.toggle('open');
+  this.classList.toggle('active', open);
+  if (open) {
+    renderLabelsPanel();
+    // Position below button, aligned to its right edge
+    const rect = this.getBoundingClientRect();
+    labelsPanel.style.top  = (rect.bottom + 4) + 'px';
+    labelsPanel.style.left = 'auto';
+    labelsPanel.style.right = Math.max(4, document.documentElement.clientWidth - rect.right) + 'px';
+  }
+});
+
+document.addEventListener('click', e => {
+  if (!labelsPanel.contains(e.target) && e.target.id !== 'btn-hdr-labels-panel') {
+    labelsPanel.classList.remove('open');
+    document.getElementById('btn-hdr-labels-panel').classList.remove('active');
+  }
+});
+
+document.getElementById('btn-lp-all').addEventListener('click', e => {
+  e.stopPropagation();
+  hiddenLabels.clear();
+  applyLabelVisibility();
+  renderLabelsPanel();
+});
+document.getElementById('btn-lp-none').addEventListener('click', e => {
+  e.stopPropagation();
+  signalLabels.forEach(l => hiddenLabels.add(l.id));
+  applyLabelVisibility();
+  renderLabelsPanel();
+});
+document.getElementById('btn-lp-wide').addEventListener('click', e => {
+  e.stopPropagation();
+  scanLabel(null);
+});
+
+refreshLabelsDropdown();
+
+// ─── LABELS MANAGER ──────────────────────────────────────────────────────────
+let mgrPickedColor = LABEL_COLORS[0];
+
+function renderMgrColorPicker(containerId, current, onPick) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = LABEL_COLORS.map((c,i) =>
+    `<div class="lbl-color-btn${c===current?' active':''}" data-color="${c}"
+      style="background:${c};width:16px;height:16px;" title="${c}"></div>`
+  ).join('');
+  el.querySelectorAll('.lbl-color-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      el.querySelectorAll('.lbl-color-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      onPick(this.dataset.color);
+    });
+  });
+}
+
+function renderMgrList() {
+  const list = document.getElementById('mgr-list');
+  document.getElementById('mgr-count').textContent = `${signalLabels.length} labelis(-iai)`;
+
+  if (signalLabels.length === 0) {
+    list.innerHTML = '<div style="padding:24px;text-align:center;color:#444;font-size:11px;font-family:monospace;">Nėra sukurtų labelių</div>';
+    return;
+  }
+
+  list.innerHTML = signalLabels.map((lbl, idx) => `
+    <div class="mgr-row" data-id="${lbl.id}" style="
+      display:flex;align-items:center;gap:8px;padding:8px 18px;
+      border-bottom:1px solid #ffffff08;transition:background 0.15s;
+    ">
+      <div class="mgr-color-dot" style="
+        width:12px;height:12px;border-radius:50%;flex-shrink:0;
+        background:${lbl.color};box-shadow:0 0 6px ${lbl.color};
+        cursor:pointer;" title="Keisti spalvą" data-idx="${idx}"></div>
+
+      <input class="mgr-name-input" data-idx="${idx}" type="text" value="${lbl.name}" style="
+        flex:2;background:transparent;color:#ddd;border:1px solid transparent;
+        border-radius:4px;padding:3px 6px;font-size:11px;font-family:monospace;
+        min-width:80px;" title="Spausti norėdami redaguoti"/>
+
+      <div style="display:flex;align-items:center;gap:4px;color:#555;font-size:10px;font-family:monospace;">
+        <input class="mgr-fmin-input" data-idx="${idx}" type="number" value="${lbl.freqMin}" style="
+          width:72px;background:#0d1117;color:#00aaff;border:1px solid #00aaff22;
+          border-radius:4px;padding:3px 5px;font-size:10px;font-family:monospace;"/>
+        <span>–</span>
+        <input class="mgr-fmax-input" data-idx="${idx}" type="number" value="${lbl.freqMax}" style="
+          width:72px;background:#0d1117;color:#00aaff;border:1px solid #00aaff22;
+          border-radius:4px;padding:3px 5px;font-size:10px;font-family:monospace;"/>
+        <span style="color:#444;">MHz</span>
+      </div>
+
+      <div class="mgr-inline-colors" data-idx="${idx}" style="display:none;gap:3px;"></div>
+
+      <div style="margin-left:auto;display:flex;gap:4px;">
+        <button class="mgr-save-btn lbl-btn" data-idx="${idx}" style="
+          padding:2px 8px;font-size:10px;border-color:#a29bfe;color:#a29bfe;display:none;">💾</button>
+        <button class="mgr-del-btn lbl-btn" data-idx="${idx}" style="
+          padding:2px 8px;font-size:10px;border-color:#ff6b6b44;color:#ff6b6b;">✕</button>
+      </div>
+    </div>
+  `).join('');
+
+  // Row hover
+  list.querySelectorAll('.mgr-row').forEach(row => {
+    row.addEventListener('mouseenter', () => row.style.background = '#ffffff06');
+    row.addEventListener('mouseleave', () => row.style.background = 'transparent');
+  });
+
+  // Name input: show save on change
+  list.querySelectorAll('.mgr-name-input, .mgr-fmin-input, .mgr-fmax-input').forEach(inp => {
+    inp.addEventListener('focus', function() { this.style.borderColor = '#a29bfe66'; });
+    inp.addEventListener('blur',  function() { this.style.borderColor = 'transparent'; });
+    inp.addEventListener('input', function() {
+      const idx = this.dataset.idx;
+      list.querySelector(`.mgr-save-btn[data-idx="${idx}"]`).style.display = '';
+    });
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') list.querySelector(`.mgr-save-btn[data-idx="${this.dataset.idx}"]`)?.click();
+    });
+  });
+
+  // Color dot: toggle inline color picker
+  list.querySelectorAll('.mgr-color-dot').forEach(dot => {
+    dot.addEventListener('click', function() {
+      const idx = this.dataset.idx;
+      const cp = list.querySelector(`.mgr-inline-colors[data-idx="${idx}"]`);
+      const isOpen = cp.style.display === 'flex';
+      list.querySelectorAll('.mgr-inline-colors').forEach(c => c.style.display = 'none');
+      if (!isOpen) {
+        cp.style.display = 'flex';
+        cp.innerHTML = LABEL_COLORS.map(c =>
+          `<div class="lbl-color-btn${signalLabels[idx].color===c?' active':''}" data-color="${c}"
+            style="background:${c};width:14px;height:14px;" data-idx="${idx}"></div>`
+        ).join('');
+        cp.querySelectorAll('.lbl-color-btn').forEach(btn => {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const i = parseInt(this.dataset.idx);
+            signalLabels[i].color = this.dataset.color;
+            saveLabels(); retagAllMarkers(); renderMgrList();
+          });
+        });
+      }
+    });
+  });
+
+  // Save button
+  list.querySelectorAll('.mgr-save-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const idx = parseInt(this.dataset.idx);
+      const row = list.querySelector(`.mgr-row[data-id="${signalLabels[idx].id}"]`);
+      signalLabels[idx].name    = row.querySelector('.mgr-name-input').value.trim() || signalLabels[idx].name;
+      signalLabels[idx].freqMin = parseFloat(row.querySelector('.mgr-fmin-input').value) || signalLabels[idx].freqMin;
+      signalLabels[idx].freqMax = parseFloat(row.querySelector('.mgr-fmax-input').value) || signalLabels[idx].freqMax;
+      saveLabels(); retagAllMarkers(); renderMgrList();
+    });
+  });
+
+  // Delete button
+  list.querySelectorAll('.mgr-del-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const idx = parseInt(this.dataset.idx);
+      if (confirm(`Ištrinti "${signalLabels[idx].name}"?`)) {
+        signalLabels.splice(idx, 1);
+        saveLabels(); retagAllMarkers(); renderMgrList();
+      }
+    });
+  });
+}
+
+function openLabelsManager() {
+  renderMgrColorPicker('mgr-new-colors', LABEL_COLORS[0], c => { mgrPickedColor = c; });
+  mgrPickedColor = LABEL_COLORS[0];
+  renderMgrList();
+  document.getElementById('labels-mgr').style.display = 'flex';
+  setTimeout(() => document.getElementById('mgr-new-name').focus(), 50);
+}
+
+document.getElementById('btn-hdr-labels-mgr').addEventListener('click', openLabelsManager);
+document.getElementById('btn-mgr-close').addEventListener('click', () => {
+  document.getElementById('labels-mgr').style.display = 'none';
+});
+document.getElementById('labels-mgr').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+// Add new label from manager form
+document.getElementById('btn-mgr-add').addEventListener('click', () => {
+  const name = document.getElementById('mgr-new-name').value.trim();
+  const fmin = parseFloat(document.getElementById('mgr-new-fmin').value);
+  const fmax = parseFloat(document.getElementById('mgr-new-fmax').value);
+  if (!name) { document.getElementById('mgr-new-name').focus(); return; }
+  if (isNaN(fmin) || isNaN(fmax) || fmin >= fmax) {
+    document.getElementById('mgr-new-fmin').focus(); return;
+  }
+  signalLabels.push({ id: Date.now().toString(36), name, freqMin: fmin, freqMax: fmax, color: mgrPickedColor, createdAt: Date.now() });
+  saveLabels(); retagAllMarkers(); renderMgrList();
+  document.getElementById('mgr-new-name').value = '';
+  document.getElementById('mgr-new-fmin').value = '';
+  document.getElementById('mgr-new-fmax').value = '';
+  document.getElementById('mgr-new-name').focus();
+});
+document.getElementById('mgr-new-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('mgr-new-fmin').focus();
+});
+document.getElementById('mgr-new-fmin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('mgr-new-fmax').focus();
+});
+document.getElementById('mgr-new-fmax').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-mgr-add').click();
+});
+
+// Export
+document.getElementById('btn-mgr-export').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(signalLabels, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sdr360_labels.json';
+  a.click();
+});
 </script>
 </body>
 </html>

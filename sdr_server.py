@@ -214,12 +214,13 @@ def find_peaks(spectrum: list, n: int = 5,
 # ─── Scan engine ────────────────────────────────────────────────────────────
 class ScanEngine:
     def __init__(self, cfg: dict, has_hw: bool):
-        self.cfg     = cfg
-        self.has_hw  = has_hw
-        self.clients : set = set()
-        self.paused  = False
-        self.step    = 0
-        self.count   = 0
+        self.cfg        = cfg
+        self.has_hw     = has_hw
+        self.clients    : set = set()
+        self.paused     = False
+        self.step       = 0
+        self.count      = 0
+        self.active_dirs = list(range(int(cfg["directions"])))  # all by default
 
     async def broadcast(self, msg: str):
         dead = set()
@@ -239,6 +240,12 @@ class ScanEngine:
                 continue
 
             dir_idx = self.step
+            self.step = (self.step + 1) % directions
+
+            # Skip inactive directions instantly
+            if dir_idx not in self.active_dirs:
+                continue
+
             bearing = dir_idx * (360 / directions)
             t0      = time.monotonic()
 
@@ -294,7 +301,6 @@ class ScanEngine:
                 "ts"      : time.time(),
             }))
 
-            self.step = (self.step + 1) % directions
             if self.step == 0:
                 self.count += 1
 
@@ -319,6 +325,7 @@ class ScanEngine:
             if "lna_gain"    in cfg: self.cfg["lna_gain"]    = int(cfg["lna_gain"])
             if "vga_gain"    in cfg: self.cfg["vga_gain"]    = int(cfg["vga_gain"])
             if "threshold"   in cfg: self.cfg["threshold"]   = float(cfg["threshold"])
+            if "active_dirs" in cfg: self.active_dirs        = [int(x) for x in cfg["active_dirs"]]
             log.info(f"Config updated: {cfg}")
         elif t == "list_devices":
             devices = list_hackrf_devices()
