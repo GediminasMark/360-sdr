@@ -23,7 +23,16 @@
       "Bash(time hackrf_sweep -f 100:6000 -w 1000000 -l 32 -g 40 -1 -r /dev/stdout)",
       "Bash(hackrf_sweep -f 100:200 -w 1000000 -1 -l 32 -g 40)",
       "Bash(node -e \":*)",
-      "Bash(pkill -f 'node server.js')"
+      "Bash(pkill -f 'node server.js')",
+      "Bash(node server.js)",
+      "Bash(python3 sdr_server.py)",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs kill:*)",
+      "Bash(lsof -ti:8765)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
